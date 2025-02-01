@@ -4,26 +4,26 @@ import { supabase } from "../../supabaseClient";
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Product {
   id: string;
   name: string;
-  image: string | null;
+  images: string[]; // Changed to an array of image URLs
   description: string;
   category_id: string;
   price: string;
-  unitsavailable:string;
-  category?: { name: string } | null; // Single object for category
+  unitsavailable: string;
+  category?: { name: string } | null;
 }
 
 export default function Page() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const { id } = useParams<{ id: string }>();
-
-  
 
   useEffect(() => {
     if (!id) {
@@ -37,7 +37,7 @@ export default function Page() {
         const { data, error } = await supabase
           .from("plots")
           .select(
-            "id, name, image, description, category_id, unitsavailable, price, category(name)"
+            "id, name, images, description, category_id, unitsavailable, price, category(name)"
           )
           .eq("id", id)
           .single();
@@ -47,13 +47,13 @@ export default function Page() {
           return;
         }
 
-       
-        const transformedProduct = {
+        const transformedProduct: Product = {
           ...data,
-          category: data.category && data.category.length > 0 ? data.category[0] : null,
+          images: Array.isArray(data.images) ? data.images : ["/default-image.jpg"], // Ensure it's an array
+          category: data.category ? { name: data.category.name } : null, // Ensure category is an object
         };
 
-        setProduct(transformedProduct as Product);
+        setProduct(transformedProduct);
       } catch (err) {
         setError("Failed to fetch product.");
         console.error(err);
@@ -85,8 +85,16 @@ export default function Page() {
     return notFound();
   }
 
-  const image = product.image || "/default-image.jpg"; 
-  const categoryName = product.category?.name || "Unknown Category"; 
+  const categoryName = product.category?.name || "Unknown Category";
+
+  // Carousel navigation
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex === 0 ? product.images.length - 1 : prevIndex - 1));
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex === product.images.length - 1 ? 0 : prevIndex + 1));
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center py-16 px-4 mt-10">
@@ -96,48 +104,66 @@ export default function Page() {
           {product.name}
         </h1>
 
-        {/* Product Content */}
-        <div className="flex flex-col gap-8">
-          {/* Image */}
-          <div className="flex-1 flex items-center justify-center">
-            <Image
-              src={image}
-              alt={product.name}
-              width={500}
-              height={500}
-              className="rounded-lg object-cover shadow-md"
-            />
-          </div>
+        {/* Image Carousel */}
+        <div className="relative w-full h-96 flex items-center justify-center">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={product.images[currentIndex]}
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.5 }}
+              className="absolute w-full h-full"
+            >
+              <Image
+                src={product.images[currentIndex]}
+                alt={`Image ${currentIndex + 1}`}
+                layout="fill"
+                objectFit="cover"
+                className="rounded-lg shadow-md"
+              />
+            </motion.div>
+          </AnimatePresence>
 
-          {/* Details */}
-          <div className="flex-1 text-gray-700 space-y-4">
-            <p className="text-lg">
-              <span className="font-semibold text-gray-900">Description:</span>{" "}
-              {product.description}
-            </p>
-            <p className="text-lg">
-              <span className="font-semibold text-gray-900">Category:</span>{" "}
-              {categoryName}
-            </p>
-            <p className="text-lg">
-              <span className="font-semibold text-gray-900">Price:</span>{" "}
-              {product.price}
-            </p>
-            <p className="text-lg">
-              <span className="font-semibold text-gray-900">Available units:</span>{" "}
-              {product.unitsavailable}
-            </p>
-          </div>
+          {/* Navigation Buttons */}
+          <button onClick={prevSlide} className="absolute left-4 bg-white/20 p-2 rounded-full shadow-md">
+            <ChevronLeft size={24} />
+          </button>
+          <button onClick={nextSlide} className="absolute right-4 bg-white/20 p-2 rounded-full shadow-md">
+            <ChevronRight size={24} />
+          </button>
 
-          
+          {/* Pagination Dots */}
+          <div className="absolute bottom-4 flex space-x-2">
+            {product.images.map((_, index) => (
+              <span
+                key={index}
+                className={`h-3 w-3 rounded-full ${currentIndex === index ? "bg-kilifigreen" : "bg-gray-300"}`}
+                onClick={() => setCurrentIndex(index)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Product Details */}
+        <div className="mt-8 space-y-4 text-gray-700">
+          <p className="text-lg">
+            <span className="font-semibold text-gray-900">Description:</span> {product.description}
+          </p>
+          <p className="text-lg">
+            <span className="font-semibold text-gray-900">Category:</span> {categoryName}
+          </p>
+          <p className="text-lg">
+            <span className="font-semibold text-gray-900">Price:</span> {product.price}
+          </p>
+          <p className="text-lg">
+            <span className="font-semibold text-gray-900">Available units:</span> {product.unitsavailable}
+          </p>
         </div>
 
         {/* Back Link */}
         <div className="mt-8 text-center">
-          <a
-            href="/products"
-            className="text-kilifigreen font-semibold hover:underline"
-          >
+          <a href="/products" className="text-kilifigreen font-semibold hover:underline">
             Back to Products
           </a>
         </div>

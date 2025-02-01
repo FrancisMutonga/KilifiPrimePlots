@@ -10,7 +10,7 @@ import Hero from "../components/news";
 interface Product {
   id: string;
   name: string;
-  image: string;
+  images: string[];
   location: string;
   price: string;
   category:Category[];
@@ -24,7 +24,7 @@ interface Category {
 interface ProductResponse {
   id: string;
   name: string;
-  image: string;
+  images: string[];
   location: string;
   price: string;
   category: Category[] | Category | null; // categories can be either an array or a single object or null
@@ -68,7 +68,7 @@ useEffect(() => {
       setLoading(true);
       let query = supabase
         .from("plots")
-        .select("id, name, image, price, location, category(id, name, icon)");
+        .select("id, name, images, price, location, category(id, name, icon)");
 
       if (selectedCategory) {
         query = query.eq("category.name", selectedCategory); // Match category by name
@@ -117,10 +117,18 @@ const filteredProducts = selectedCategory
 
   return (
     <div className="mt-20 p-6 flex flex-col gap-4">
-      
+      <Hero/>
 
-      {/* Category Filter */}
-      <div className="fixed top-30 left-1/2 transform -translate-x-1/2 w-full flex items-center justify-center text-kilifigreen space-x-4 z-50">
+      {/* Loading & Error States */}
+      {loading && <p className="text-center">Loading products...</p>}
+      {error && <p className="text-center text-red-500">{error}</p>}
+
+      {filteredProducts.length === 0 && !loading && !error && (
+        <p className="text-center">No products available in this category.</p>
+      )}
+      
+       {/* Category Filter */}
+       <div className=" w-full flex items-center justify-center text-kilifigreen space-x-4 z-50">
         {categories.length > 0 ? (
           categories.map((category) => (
             <button
@@ -143,25 +151,17 @@ const filteredProducts = selectedCategory
         )}
       </div>
 
-      {/* Loading & Error States */}
-      {loading && <p className="text-center">Loading products...</p>}
-      {error && <p className="text-center text-red-500">{error}</p>}
-
-      {filteredProducts.length === 0 && !loading && !error && (
-        <p className="text-center">No products available in this category.</p>
-      )}
-      <div className="mt-40">
-      <Hero/>
+      <div className="">
+      
       <h1 className="text-3xl font-bold text-dark text-center mb-8">Available Plots</h1>
       </div>
      
-
       {/* Products Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map((product) => (
           <Link key={product.id} href={`/productdetail/${product.id}`} passHref>
             <div className="cursor-pointer">
-              <ProductCard name={product.name} image={product.image} location={product.location} price={product.price}/>
+              <ProductCard name={product.name} images={product.images} location={product.location} price={product.price}/>
             </div>
           </Link>
         ))}

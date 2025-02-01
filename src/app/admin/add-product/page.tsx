@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../supabaseClient";
 import Image from "next/image";
 
-
 interface Category {
   id: string;
   name: string;
@@ -17,79 +16,91 @@ const AddProduct = () => {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState(""); 
   const [location, setLocation] = useState("");
-  const [image, setImage] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]); // Use Category type for categories state
+  const [images, setImages] = useState<string[]>([]);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const router = useRouter();
 
-  // Fetch categories from the categories table
   useEffect(() => {
     const fetchCategories = async () => {
       const { data, error } = await supabase.from("category").select("id, name");
       if (error) {
         console.error("Error fetching categories:", error);
       } else {
-        setCategories(data || []); // data is now typed as Category[]
+        setCategories(data || []);
       }
     };
     fetchCategories();
   }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file); // Set the file for preview
-
+    const files = e.target.files;
+    if (!files) return;
+  
+    const uploadedUrls: string[] = [];
+    const uploadedFiles: File[] = [...imageFiles, ...Array.from(files)];
+    setImageFiles(uploadedFiles);
+  
+    for (const file of files) {
       const fileName = `${Date.now()}-${file.name}`;
       const filePath = `images/${fileName}`;
-
-      // Upload image to Supabase Storage
-      const { error } = await supabase.storage
-        .from("images")
-        .upload(filePath, file);
-
+  
+      
+      const { data, error } = await supabase.storage.from("images").upload(filePath, file);
+  
       if (error) {
-        console.error("Error uploading image", error);
-        return;
+        console.error("Error uploading image", error.message);
+        alert(`Failed to upload ${file.name}: ${error.message}`);
+        continue;
       }
-
-      // Fetch the public URL of the uploaded image
-      const publicUrlData = supabase.storage
-        .from("images")
-        .getPublicUrl(filePath);
-
-      if (publicUrlData.data?.publicUrl) {
-        setImage(publicUrlData.data.publicUrl);  // Successfully set the image URL
-      } else {
-        console.error("Error: publicUrl not found.");
+  
+      
+      const publicUrl = supabase.storage.from("images").getPublicUrl(filePath).data.publicUrl;
+      if (publicUrl) {
+        uploadedUrls.push(publicUrl);
       }
     }
+  
+    if (uploadedUrls.length > 0) {
+      
+      const { error: insertError } = await supabase.from("plots").insert([
+        { images: uploadedUrls }, 
+      ]);
+  
+      if (insertError) {
+        console.error("Error inserting image URLs into database:", insertError.message);
+        alert(`Failed to save images: ${insertError.message}`);
+        return;
+      }
+    }
+  
+    
+    setImages((prevImages) => [...prevImages, ...uploadedUrls]);
   };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); 
-  
-    // Check if all fields are filled in and if the image URL is set
-    if (!name.trim() || !description.trim() || !price.trim() || !category.trim() || !location.trim() || !image.trim()) {
-      alert("Please fill in all fields and upload an image.");
+
+    if (!name.trim() || !description.trim() || !price.trim() || !category.trim() || !location.trim() || images.length === 0) {
+      alert("Please fill in all fields and upload at least one image.");
       return;
     }
-  
-    const { error } = await supabase
-      .from("products")
-      .insert([
-        {
-          name,
-          description,
-          price,
-          category_id: category,
-          location,
-          image: image,
-        },
-      ]);
-  
+
+    const { error } = await supabase.from("plots").insert([
+      {
+        name,
+        description,
+        price,
+        category_id: category,
+        location,
+        images, 
+      },
+    ]);
+
     if (error) {
-      console.error("Error adding product", error);
+      console.error("Error adding product:", error.message);
+      alert("Failed to add product. Please try again.");
     } else {
       alert("Product added successfully!");
       router.push("/admin/dashboard");
@@ -97,10 +108,10 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="min-h-screen  p-6 mt-20 flex flex-col items-center justify-center">
+    <div className="min-h-screen p-6 mt-20 flex flex-col items-center justify-center">
       <h2 className="text-2xl mb-4 text-kilifigreen">Add New Product</h2>
 
-      <div className="bg- p-6 shadow-md text-black grid-place-items-center rounded">
+      <div className="bg-white/40 p-6 shadow-md text-black rounded">
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -119,14 +130,13 @@ const AddProduct = () => {
             type="text"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            placeholder="price"
+            placeholder="Price"
             className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
           />
 
-          {/* Category Dropdown */}
           <select
-            value={category} // Set category to category_id
-            onChange={(e) => setCategory(e.target.value)} // Set the category_id
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
             className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
           >
             <option value="">Select Category</option>
@@ -144,23 +154,26 @@ const AddProduct = () => {
             className="w-full mb-4 bg-gray-200 p-2 border border-gray-300 rounded"
           />
 
-          {/* Image Upload Section */}
           <div className="mb-4">
             <input
               type="file"
               accept="image/*"
+              multiple
               onChange={handleImageUpload}
               className="w-full p-2 bg-gray-200 border border-gray-300 rounded"
             />
-
-            {/* Display Preview of Image Before Upload */}
-            {imageFile && (
-              <div className="mt-4">
-                <Image
-                  src={URL.createObjectURL(imageFile)} // Display the file preview
-                  alt="Image Preview"
-                  className="w-32 h-32 object-cover rounded"
-                />
+            {imageFiles.length > 0 && (
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {imageFiles.map((file, index) => (
+                  <Image
+                    key={index}
+                    src={URL.createObjectURL(file)}
+                    alt="Image Preview"
+                    width={50}
+                    height={50}
+                    className="object-cover rounded"
+                  />
+                ))}
               </div>
             )}
           </div>
@@ -176,6 +189,5 @@ const AddProduct = () => {
     </div>
   );
 };
-
 
 export default AddProduct;

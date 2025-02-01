@@ -13,7 +13,7 @@ import "swiper/css/pagination";
 interface Product {
     id: string;
     name: string;
-    image: string;
+    images: string[];
     location: string;
     price: string;
   }
@@ -65,7 +65,7 @@ interface Product {
           <SwiperSlide key={product.id}>
             <Link key={product.id} href={`/productdetail/${product.id}`} passHref>
         <div className="cursor-pointer">
-          <ProductCard name={product.name} image={product.image} location={product.location} price={product.price}/>
+          <ProductCard name={product.name} images={product.images} location={product.location} price={product.price}/>
         </div>
       </Link>
           </SwiperSlide>
