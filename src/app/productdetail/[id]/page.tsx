@@ -41,18 +41,21 @@ export default function Page() {
           )
           .eq("id", id)
           .single();
-
+    
         if (error || !data) {
           setError("Product not found.");
           return;
         }
-
+    
+        // Ensure category is properly extracted
         const transformedProduct: Product = {
           ...data,
-          images: Array.isArray(data.images) ? data.images : ["/default-image.jpg"], // Ensure it's an array
-          category: data.category ? { name: data.category.name } : null, // Ensure category is an object
+          images: Array.isArray(data.images) ? data.images : ["/default-image.jpg"], // Ensure images is an array
+          category: Array.isArray(data.category) && data.category.length > 0 
+            ? { name: data.category[0].name } 
+            : null, // Convert category to a single object
         };
-
+    
         setProduct(transformedProduct);
       } catch (err) {
         setError("Failed to fetch product.");
@@ -61,6 +64,7 @@ export default function Page() {
         setLoading(false);
       }
     };
+    
 
     fetchProduct();
   }, [id]);
