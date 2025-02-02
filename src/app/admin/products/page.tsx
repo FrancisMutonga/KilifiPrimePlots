@@ -153,8 +153,8 @@ const ProductList: React.FC = () => {
       <div className="w-full p-6 flex flex-col gap-4">
         {error && <p className="text-center text-red-500">{error}</p>}
         {editingProduct && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 mt-20">
-            <div className="bg-warm p-6 rounded-lg shadow-lg w-full">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-8 mt-20">
+            <div className="bg-warm p-8 rounded-lg shadow-lg w-full">
               <h2 className="text-2xl font-bold mb-4">Edit Product</h2>
               <form>
                 <label className="block mb-2">Name:

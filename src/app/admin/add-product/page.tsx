@@ -47,7 +47,7 @@ const AddProduct = () => {
       const filePath = `images/${fileName}`;
   
       
-      const { data, error } = await supabase.storage.from("images").upload(filePath, file);
+      const {  error } = await supabase.storage.from("images").upload(filePath, file);
   
       if (error) {
         console.error("Error uploading image", error.message);
