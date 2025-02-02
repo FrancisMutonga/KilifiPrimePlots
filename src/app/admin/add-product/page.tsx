@@ -16,6 +16,7 @@ const AddProduct = () => {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState(""); 
   const [location, setLocation] = useState("");
+  const [unitsavailable, setUnitsavailable] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -95,6 +96,7 @@ const AddProduct = () => {
         category_id: category,
         location,
         images, 
+        unitsavailable,
       },
     ]);
 
@@ -131,6 +133,13 @@ const AddProduct = () => {
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="Price"
+            className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
+          />
+          <input
+            type="text"
+            value={unitsavailable}
+            onChange={(e) => setUnitsavailable(e.target.value)}
+            placeholder="Available Units"
             className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
           />
 
