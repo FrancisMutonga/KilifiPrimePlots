@@ -153,7 +153,7 @@ export default function Page() {
             <span className="font-semibold text-gray-900">Description:</span> {product.description}
           </p>
           <p className="text-lg">
-            <span className="font-semibold text-gray-900">Category:</span> {product.category?.name }
+            <span className="font-semibold text-gray-900">Category:</span>  {categoryName}
           </p>
           <p className="text-lg">
             <span className="font-semibold text-gray-900">Price:</span> {product.price}
