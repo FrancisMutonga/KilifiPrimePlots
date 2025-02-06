@@ -10,12 +10,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface Product {
   id: string;
   name: string;
-  images: string[]; // Changed to an array of image URLs
+  images: string[];
   description: string;
   category_id: string;
   price: string;
   unitsavailable: string;
-  category?: { name: string } | null;
+  category?: { name: string } | null; // Category is a single object, not an array
 }
 
 export default function Page() {
@@ -37,25 +37,23 @@ export default function Page() {
         const { data, error } = await supabase
           .from("plots")
           .select(
-            "id, name, images, description, category_id, unitsavailable, price, category(name)"
+            `id, name, images, description, category_id, unitsavailable, price, category(name)`
           )
           .eq("id", id)
-          .single();
-    
+          .single(); // Ensure we get only a single object, not an array
+
         if (error || !data) {
           setError("Product not found.");
           return;
         }
-    
-        // Ensure category is properly extracted
+
+        // Ensure category is an object, not an array
         const transformedProduct: Product = {
           ...data,
-          images: Array.isArray(data.images) ? data.images : ["/default-image.jpg"], // Ensure images is an array
-          category: Array.isArray(data.category) && data.category.length > 0 
-            ? { name: data.category[0].name } 
-            : null, // Convert category to a single object
+          images: Array.isArray(data.images) ? data.images : ["/default-image.jpg"],
+          category: data.category && !Array.isArray(data.category) ? data.category : null, // Fix for category issue
         };
-    
+
         setProduct(transformedProduct);
       } catch (err) {
         setError("Failed to fetch product.");
@@ -64,7 +62,6 @@ export default function Page() {
         setLoading(false);
       }
     };
-    
 
     fetchProduct();
   }, [id]);
@@ -91,24 +88,13 @@ export default function Page() {
 
   const categoryName = product.category?.name || "Unknown Category";
 
-  // Carousel navigation
-  const prevSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === 0 ? product.images.length - 1 : prevIndex - 1));
-  };
-
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === product.images.length - 1 ? 0 : prevIndex + 1));
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center py-16 px-4 mt-10">
       <div className="max-w-4xl w-full bg-beige/70 rounded-xl shadow-lg border border-gray-200 p-8">
-        {/* Product Header */}
         <h1 className="text-4xl font-bold text-center text-kilifigreen mb-6">
           {product.name}
         </h1>
 
-        {/* Image Carousel */}
         <div className="relative w-full h-96 flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.div
@@ -128,34 +114,14 @@ export default function Page() {
               />
             </motion.div>
           </AnimatePresence>
-
-          {/* Navigation Buttons */}
-          <button onClick={prevSlide} className="absolute left-4 bg-white/20 p-2 rounded-full shadow-md">
-            <ChevronLeft size={24} />
-          </button>
-          <button onClick={nextSlide} className="absolute right-4 bg-white/20 p-2 rounded-full shadow-md">
-            <ChevronRight size={24} />
-          </button>
-
-          {/* Pagination Dots */}
-          <div className="absolute bottom-4 flex space-x-2">
-            {product.images.map((_, index) => (
-              <span
-                key={index}
-                className={`h-3 w-3 rounded-full ${currentIndex === index ? "bg-kilifigreen" : "bg-gray-300"}`}
-                onClick={() => setCurrentIndex(index)}
-              />
-            ))}
-          </div>
         </div>
 
-        {/* Product Details */}
         <div className="mt-8 space-y-4 text-gray-700">
           <p className="text-lg">
             <span className="font-semibold text-gray-900">Description:</span> {product.description}
           </p>
           <p className="text-lg">
-            <span className="font-semibold text-gray-900">Category:</span> {product.category?.name }
+            <span className="font-semibold text-gray-900">Category:</span> {categoryName}
           </p>
           <p className="text-lg">
             <span className="font-semibold text-gray-900">Price:</span> {product.price}
@@ -163,13 +129,6 @@ export default function Page() {
           <p className="text-lg">
             <span className="font-semibold text-gray-900">Available units:</span> {product.unitsavailable}
           </p>
-        </div>
-
-        {/* Back Link */}
-        <div className="mt-8 text-center">
-          <a href="/products" className="text-kilifigreen font-semibold hover:underline">
-            Back to Products
-          </a>
         </div>
       </div>
     </div>
