@@ -35,6 +35,14 @@ const Navbar: React.FC = () => {
               Home
             </Link>
           </li>
+          <li>
+            <Link
+              href="/about"
+              className="text-lg font-semi text-link hover:text-blue-900"
+            >
+              About
+            </Link>
+          </li>
 
           <li>
             <Link
@@ -80,6 +88,13 @@ const Navbar: React.FC = () => {
             className="text-lg font-bold text-link hover:text-linkgreen"
           >
             Home
+          </Link>
+          <Link
+            href="/about"
+            onClick={handleDrawerLinkClick}
+            className="text-lg font-bold text-link hover:text-linkgreen"
+          >
+            About
           </Link>
 
           <Link
