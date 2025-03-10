@@ -10,10 +10,12 @@ const Footer: React.FC = () => {
         <div>
           {/* Logo Section */}
           <div className="mb-4">
-            <img
+            <Image
               src="/logowhite.png"
               alt="Company Logo"
-              className="h-20 hover:opacity-80 transition-opacity duration-300"
+              className="hover:opacity-80 transition-opacity duration-300"
+              height={20}
+              width={20}
             />
           </div>
         </div>

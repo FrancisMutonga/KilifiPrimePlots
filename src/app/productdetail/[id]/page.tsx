@@ -10,7 +10,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface Product {
   id: string;
   name: string;
-  images: string[]; // Changed to an array of image URLs
+  images: string[]; 
   description: string;
   category_id: string;
   price: string;

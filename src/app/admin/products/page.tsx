@@ -15,6 +15,7 @@ interface Product {
   location: string;
   unitsavailable: string;
   images: string[];
+  category_id: string;
 }
 
 const ProductList: React.FC = () => {
@@ -64,34 +65,40 @@ const ProductList: React.FC = () => {
 
   const handleSave = async () => {
     if (!editingProduct) return;
-    const { error } = await supabase.from("products").update({
-      name: editingProduct.name,
-      description: editingProduct.description,
-      price: editingProduct.price,
-      location: editingProduct.location,
-      unitsavailable: editingProduct.unitsavailable,
-      images: editingProduct.images,
-    }).eq("id", editingProduct.id);
+    const { error } = await supabase
+      .from("plots") // Updated to match fetching logic
+      .update({
+        name: editingProduct.name,
+        description: editingProduct.description,
+        price: editingProduct.price,
+        location: editingProduct.location,
+        unitsavailable: editingProduct.unitsavailable,
+        images: editingProduct.images,
+        category_id: editingProduct.category_id,
+      })
+      .eq("id", editingProduct.id);
 
     if (error) {
       alert("Failed to update product.");
     } else {
       alert("Product updated successfully!");
-      setEditingProduct(null);
-      const { data } = await supabase.from("products").select("*");
+
+      // Refresh product list after updating
+      const { data } = await supabase.from("plots").select("*");
       setProducts(data || []);
+      setEditingProduct(null);
     }
   };
 
   return (
-     <div className="min-h-screen overflow-x-hidden  mt-20 ">
+    <div className="min-h-screen overflow-x-hidden mt-20">
       <div className="w-full p-6 flex flex-col gap-4">
-        <h1 className="text-3xl font-bold text-center text-kilifigreen text-link">Products</h1>
+        <h1 className="text-3xl font-bold text-center text-kilifigreen">Products</h1>
 
         {error && <p className="text-center text-red-500">{error}</p>}
 
-        <div className="mb-2 item-center justify-center">
-          <label htmlFor="category" className="block text-lg text-bold text-kilifigreen mb-2">
+        <div className="mb-2 flex items-center justify-center gap-8">
+          <label htmlFor="category" className="block text-lg font-bold text-kilifigreen mb-2">
             Filter by Category
           </label>
           <select
@@ -135,7 +142,6 @@ const ProductList: React.FC = () => {
                   <tr key={product.id} className="border-b text-black">
                     <td className="py-3 px-4">{product.name}</td>
                     <td className="py-3 px-4">{product.price}</td>
-                    <td className="py-3 px-4">{product.location}</td>
                     <td className="py-3 px-4">
                       <button
                         onClick={() => handleEdit(product)}
@@ -150,34 +156,67 @@ const ProductList: React.FC = () => {
             </table>
           </div>
         )}
-      <div className="w-full p-6 flex flex-col gap-4">
-        {error && <p className="text-center text-red-500">{error}</p>}
+
         {editingProduct && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-8 mt-20">
-            <div className="bg-warm p-8 rounded-lg shadow-lg w-full">
-              <h2 className="text-2xl font-bold mb-4">Edit Product</h2>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center mt-20 p-12">
+            <div className="bg-beige/80 p-6 rounded-lg shadow-lg w-full text-black ">
+              <h2 className="text-2xl font-bold text-center text-kilifi mb-4">Edit Product</h2>
               <form>
-                <label className="block mb-2">Name:
-                  <input type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})} className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1" />
+                <label className="block mb-2">
+                  Name:
+                  <input
+                    type="text"
+                    value={editingProduct.name}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                    className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1"
+                  />
                 </label>
-                <label className="block mb-2">Description:
-                  <textarea value={editingProduct.description} onChange={(e) => setEditingProduct({...editingProduct, description: e.target.value})} className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1" />
+                <label className="block mb-2">
+                  Description:
+                  <textarea
+                    value={editingProduct.description}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
+                    className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1"
+                  />
                 </label>
-                <label className="block mb-2">Price:
-                  <input type="text" value={editingProduct.price} onChange={(e) => setEditingProduct({...editingProduct, price: e.target.value})} className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1" />
+                <label className="block mb-2">
+                  Price:
+                  <input
+                    type="text"
+                    value={editingProduct.price}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
+                    className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1"
+                  />
                 </label>
-                <label className="block mb-2">Location:
-                  <input type="text" value={editingProduct.location} onChange={(e) => setEditingProduct({...editingProduct, location: e.target.value})} className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1" />
+                <label className="block mb-2">Category:
+                  <select
+                    value={editingProduct.category_id}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, category_id: e.target.value })}
+                    className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1"
+                  >
+                    {categories.map(category => (
+                      <option key={category.id} value={category.id}>{category.name}</option>
+                    ))}
+                  </select>
                 </label>
                 <label className="block mb-2">Available Units:
-                  <input type="text" value={editingProduct.unitsavailable} onChange={(e) => setEditingProduct({...editingProduct, unitsavailable: e.target.value})} className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1" />
+                  <input type="text" value={editingProduct.unitsavailable} onChange={(e) => setEditingProduct({ ...editingProduct, unitsavailable: e.target.value })} className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1" />
                 </label>
-                <label className="block mb-2">Images (comma-separated URLs):
-                  <input type="text" value={editingProduct.images.join(", ")} onChange={(e) => setEditingProduct({...editingProduct, images: e.target.value.split(", ")})} className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1" />
-                </label>
-                <div className="flex justify-between gap-3 mt-4">
-                  <button type="button" onClick={() => setEditingProduct(null)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded">Cancel</button>
-                  <button type="button" onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 rounded ml-2">Save</button>
+                <div className="flex justify-between mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setEditingProduct(null)}
+                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                  >
+                    Save
+                  </button>
                 </div>
               </form>
             </div>
@@ -185,8 +224,7 @@ const ProductList: React.FC = () => {
         )}
       </div>
     </div>
-  </div>
-  )
+  );
 };
 
 export default ProductList;

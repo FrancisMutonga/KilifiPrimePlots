@@ -20,6 +20,7 @@ const AddProduct = () => {
   const [images, setImages] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(false); // Prevent duplicate submissions
   const router = useRouter();
 
   useEffect(() => {
@@ -37,56 +38,42 @@ const AddProduct = () => {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-  
+
     const uploadedUrls: string[] = [];
     const uploadedFiles: File[] = [...imageFiles, ...Array.from(files)];
     setImageFiles(uploadedFiles);
-  
+
     for (const file of files) {
       const fileName = `${Date.now()}-${file.name}`;
       const filePath = `images/${fileName}`;
-  
-      
-      const {  error } = await supabase.storage.from("images").upload(filePath, file);
-  
+
+      const { error } = await supabase.storage.from("images").upload(filePath, file);
+
       if (error) {
         console.error("Error uploading image", error.message);
         alert(`Failed to upload ${file.name}: ${error.message}`);
         continue;
       }
-  
-      
+
       const publicUrl = supabase.storage.from("images").getPublicUrl(filePath).data.publicUrl;
       if (publicUrl) {
         uploadedUrls.push(publicUrl);
       }
     }
-  
-    if (uploadedUrls.length > 0) {
-      
-      const { error: insertError } = await supabase.from("plots").insert([
-        { images: uploadedUrls }, 
-      ]);
-  
-      if (insertError) {
-        console.error("Error inserting image URLs into database:", insertError.message);
-        alert(`Failed to save images: ${insertError.message}`);
-        return;
-      }
-    }
-  
-    
+
     setImages((prevImages) => [...prevImages, ...uploadedUrls]);
   };
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
 
     if (!name.trim() || !description.trim() || !price.trim() || !category.trim() || !location.trim() || images.length === 0) {
       alert("Please fill in all fields and upload at least one image.");
       return;
     }
+
+    if (loading) return; // Prevent multiple clicks
+    setLoading(true);
 
     const { error } = await supabase.from("plots").insert([
       {
@@ -95,7 +82,7 @@ const AddProduct = () => {
         price,
         category_id: category,
         location,
-        images, 
+        images,
         unitsavailable,
       },
     ]);
@@ -105,8 +92,21 @@ const AddProduct = () => {
       alert("Failed to add product. Please try again.");
     } else {
       alert("Product added successfully!");
+
+      // Reset form fields
+      setName("");
+      setDescription("");
+      setPrice("");
+      setCategory("");
+      setLocation("");
+      setUnitsavailable("");
+      setImages([]);
+      setImageFiles([]);
+      
       router.push("/admin/dashboard");
     }
+
+    setLoading(false);
   };
 
   return (
@@ -189,9 +189,12 @@ const AddProduct = () => {
 
           <button
             type="submit"
-            className="bg-dark text-white px-6 py-2 rounded mx-auto block"
+            disabled={loading}
+            className={`bg-dark text-white px-6 py-2 rounded mx-auto block ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            Add Product
+            {loading ? "Adding..." : "Add Product"}
           </button>
         </form>
       </div>

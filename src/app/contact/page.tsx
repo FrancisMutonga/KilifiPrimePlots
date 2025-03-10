@@ -106,7 +106,7 @@ const ContactPage: React.FC = () => {
                 <span className="text-lg">Kifili, Kenya</span>
               </div>
               <div className="flex gap-12 items-startjustify-center text-xl">
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.facebook.com/people/Kilifi-Prime-Plots/61558718026419/" target="_blank" rel="noopener noreferrer">
                   <FaFacebookF className="text-black hover:text-blue-800" />
                 </a>
                 <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
