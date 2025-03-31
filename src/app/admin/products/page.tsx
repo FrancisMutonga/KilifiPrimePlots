@@ -16,6 +16,7 @@ interface Product {
   unitsavailable: string;
   images: string[];
   category_id: string;
+  feature?: string; // Add feature property
 }
 
 const ProductList: React.FC = () => {
@@ -43,7 +44,7 @@ const ProductList: React.FC = () => {
     const fetchProducts = async () => {
       setLoading(true);
       setError(null);
-      let query = supabase.from("plots").select("id, name, description, price, location, unitsavailable, images, category_id");
+      let query = supabase.from("plots").select("id, name, description, price, location, unitsavailable, images, category_id, features");
       if (selectedCategory) {
         query = query.eq("category_id", selectedCategory);
       }
@@ -75,6 +76,7 @@ const ProductList: React.FC = () => {
         unitsavailable: editingProduct.unitsavailable,
         images: editingProduct.images,
         category_id: editingProduct.category_id,
+        feature: editingProduct.feature,
       })
       .eq("id", editingProduct.id);
 
@@ -133,7 +135,7 @@ const ProductList: React.FC = () => {
                 <tr className="bg-kilifigreen text-white">
                   <th className="py-3 px-4 text-left">Name</th>
                   <th className="py-3 px-4 text-left">Price</th>
-                  <th className="py-3 px-4 text-left">Location</th>
+                  
                   <th className="py-3 px-4 text-left">Actions</th>
                 </tr>
               </thead>
@@ -158,8 +160,8 @@ const ProductList: React.FC = () => {
         )}
 
         {editingProduct && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center mt-20 p-12">
-            <div className="bg-beige/80 p-6 rounded-lg shadow-lg w-full text-black ">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center mt-20 p-8">
+            <div className="bg-beige/80 p-6 rounded-lg shadow-lg w-full text-black max-h-[80vh] overflow-y-auto">
               <h2 className="text-2xl font-bold text-center text-kilifi mb-4">Edit Product</h2>
               <form>
                 <label className="block mb-2">
@@ -202,6 +204,26 @@ const ProductList: React.FC = () => {
                 <label className="block mb-2">Available Units:
                   <input type="text" value={editingProduct.unitsavailable} onChange={(e) => setEditingProduct({ ...editingProduct, unitsavailable: e.target.value })} className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1" />
                 </label>
+                <label className="block mb-2">
+          Images (comma-separated URLs):
+          <input
+            type="text"
+            value={editingProduct.images.join(', ')} // Join array to string
+            onChange={(e) => setEditingProduct({ ...editingProduct, images: e.target.value.split(',').map(url => url.trim()) })} // Split string to array
+            className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1"
+          />
+        </label>
+
+        <label className="block mb-2">
+          Feature:
+          <input
+            type="text"
+            value={editingProduct.feature || ''}
+            onChange={(e) => setEditingProduct({ ...editingProduct, feature: e.target.value })}
+            className="block w-full bg-gray-200 text-black border rounded-md px-3 py-2 mt-1"
+          />
+        </label>
+
                 <div className="flex justify-between mt-4">
                   <button
                     type="button"

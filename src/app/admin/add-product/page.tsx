@@ -13,8 +13,9 @@ interface Category {
 const AddProduct = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [features, setFeatures] = useState<string[]>([]);
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState(""); 
+  const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
   const [unitsavailable, setUnitsavailable] = useState("");
   const [images, setImages] = useState<string[]>([]);
@@ -25,7 +26,9 @@ const AddProduct = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const { data, error } = await supabase.from("category").select("id, name");
+      const { data, error } = await supabase
+        .from("category")
+        .select("id, name");
       if (error) {
         console.error("Error fetching categories:", error);
       } else {
@@ -47,7 +50,9 @@ const AddProduct = () => {
       const fileName = `${Date.now()}-${file.name}`;
       const filePath = `images/${fileName}`;
 
-      const { error } = await supabase.storage.from("images").upload(filePath, file);
+      const { error } = await supabase.storage
+        .from("images")
+        .upload(filePath, file);
 
       if (error) {
         console.error("Error uploading image", error.message);
@@ -55,7 +60,8 @@ const AddProduct = () => {
         continue;
       }
 
-      const publicUrl = supabase.storage.from("images").getPublicUrl(filePath).data.publicUrl;
+      const publicUrl = supabase.storage.from("images").getPublicUrl(filePath)
+        .data.publicUrl;
       if (publicUrl) {
         uploadedUrls.push(publicUrl);
       }
@@ -67,7 +73,14 @@ const AddProduct = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim() || !description.trim() || !price.trim() || !category.trim() || !location.trim() || images.length === 0) {
+    if (
+      !name.trim() ||
+      !description.trim() ||
+      !price.trim() ||
+      !category.trim() ||
+      !location.trim() ||
+      images.length === 0
+    ) {
       alert("Please fill in all fields and upload at least one image.");
       return;
     }
@@ -79,6 +92,7 @@ const AddProduct = () => {
       {
         name,
         description,
+        features,
         price,
         category_id: category,
         location,
@@ -96,13 +110,14 @@ const AddProduct = () => {
       // Reset form fields
       setName("");
       setDescription("");
+      setFeatures([]);
       setPrice("");
       setCategory("");
       setLocation("");
       setUnitsavailable("");
       setImages([]);
       setImageFiles([]);
-      
+
       router.push("/admin/dashboard");
     }
 
@@ -128,6 +143,13 @@ const AddProduct = () => {
             placeholder="Description"
             className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
           />
+          <textarea
+            value={features.join("\n")} // Convert array to newline-separated string
+            onChange={(e) => setFeatures(e.target.value.split("\n"))} // Convert input back to an array
+            placeholder="Enter each feature on a new line"
+            className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
+          ></textarea>
+
           <input
             type="text"
             value={price}

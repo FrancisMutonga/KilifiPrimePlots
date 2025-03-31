@@ -10,8 +10,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface Product {
   id: string;
   name: string;
-  images: string[]; 
+  images: string[];
   description: string;
+  features: string[];
   category_id: string;
   price: string;
   unitsavailable: string;
@@ -37,23 +38,36 @@ export default function Page() {
         const { data, error } = await supabase
           .from("plots")
           .select(
-            "id, name, images, description, category_id, unitsavailable, price, category(name)"
+            "id, name, images, description, features, category_id, unitsavailable, price, category(name)"
           )
           .eq("id", id)
           .single();
-    
+
         if (error || !data) {
           setError("Product not found.");
           return;
         }
-    
-        // Ensure category is properly extracted
+
+        // Ensure features is always an array (convert from string if necessary)
+        const parsedFeatures =
+          typeof data.features === "string"
+            ? JSON.parse(data.features)
+            : data.features;
+
         const transformedProduct: Product = {
           ...data,
-          images: Array.isArray(data.images) ? data.images : ["/default-image.jpg"], // Ensure images is an array
-          category: data.category && !Array.isArray(data.category) ? data.category : null,
+          images: Array.isArray(data.images)
+            ? data.images
+            : ["/default-image.jpg"],
+          features: Array.isArray(parsedFeatures)
+            ? parsedFeatures
+            : ["No features listed"],
+          category:
+            data.category && !Array.isArray(data.category)
+              ? data.category
+              : null,
         };
-    
+
         setProduct(transformedProduct);
       } catch (err) {
         setError("Failed to fetch product.");
@@ -62,7 +76,6 @@ export default function Page() {
         setLoading(false);
       }
     };
-    
 
     fetchProduct();
   }, [id]);
@@ -91,11 +104,15 @@ export default function Page() {
 
   // Carousel navigation
   const prevSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === 0 ? product.images.length - 1 : prevIndex - 1));
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? product.images.length - 1 : prevIndex - 1
+    );
   };
 
   const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === product.images.length - 1 ? 0 : prevIndex + 1));
+    setCurrentIndex((prevIndex) =>
+      prevIndex === product.images.length - 1 ? 0 : prevIndex + 1
+    );
   };
 
   return (
@@ -128,10 +145,16 @@ export default function Page() {
           </AnimatePresence>
 
           {/* Navigation Buttons */}
-          <button onClick={prevSlide} className="absolute left-4 bg-white/20 p-2 rounded-full shadow-md">
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 bg-white/20 p-2 rounded-full shadow-md"
+          >
             <ChevronLeft size={24} />
           </button>
-          <button onClick={nextSlide} className="absolute right-4 bg-white/20 p-2 rounded-full shadow-md">
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 bg-white/20 p-2 rounded-full shadow-md"
+          >
             <ChevronRight size={24} />
           </button>
 
@@ -140,7 +163,9 @@ export default function Page() {
             {product.images.map((_, index) => (
               <span
                 key={index}
-                className={`h-3 w-3 rounded-full ${currentIndex === index ? "bg-kilifigreen" : "bg-gray-300"}`}
+                className={`h-3 w-3 rounded-full ${
+                  currentIndex === index ? "bg-kilifigreen" : "bg-gray-300"
+                }`}
                 onClick={() => setCurrentIndex(index)}
               />
             ))}
@@ -150,24 +175,59 @@ export default function Page() {
         {/* Product Details */}
         <div className="mt-8 space-y-4 text-gray-700">
           <p className="text-lg">
-            <span className="font-semibold text-gray-900">Description:</span> {product.description}
+            <span className="font-semibold text-gray-900">Description:</span>{" "}
+            {product.description}
           </p>
           <p className="text-lg">
-            <span className="font-semibold text-gray-900">Category:</span>  {categoryName}
+            <span className="font-semibold text-gray-900">Features:</span>
+          </p>
+
+          <ul className="list-disc pl-5">
+            {product.features?.map((feature: string, index: number) => (
+              <li key={index} className="text-lg text-gray-700">
+                {feature}
+              </li>
+            ))}
+          </ul>
+
+          <p className="text-lg">
+            <span className="font-semibold text-gray-900">Category:</span>{" "}
+            {categoryName}
           </p>
           <p className="text-lg">
-            <span className="font-semibold text-gray-900">Price:</span> {product.price}
+            <span className="font-semibold text-gray-900">Price:</span>{" "}
+            {product.price}
           </p>
           <p className="text-lg">
-            <span className="font-semibold text-gray-900">Available units:</span> {product.unitsavailable}
+            <span className="font-semibold text-gray-900">
+              Available units:
+            </span>{" "}
+            {product.unitsavailable}
           </p>
         </div>
 
-        {/* Back Link */}
-        <div className="mt-8 text-center">
-          <a href="/products" className="text-kilifigreen font-semibold hover:underline">
+        <div className="flex flex-row gap-10 items-center justify-center"> 
+          {/* CTA: Book Site Visit */}
+        <div className="mt-4 text-center">
+          <a
+            href="https://wa.me/+254708091755?text=I'm%20interested%20in%20booking%20a%20site%20visit%20for%20this%20property."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-kilifigreen text-white p-3 rounded-md font-semibold hover:bg-green-700 transition"
+          >
+            📍 Book Site Visit
+          </a>
+        </div>
+
+        {/* Back to Products */}
+        <div className="mt-4 text-center">
+          <a
+            href="/products"
+            className="text-kilifigreen font-semibold hover:underline"
+          >
             Back to Products
           </a>
+        </div>
         </div>
       </div>
     </div>

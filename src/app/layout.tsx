@@ -5,6 +5,7 @@ import Footer from "./components/footer";
 import Head from "next/head";
 import { usePathname } from "next/navigation";
 import "./globals.css";
+import FacebookPixel from "./components/fbpixel";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -21,6 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* SEO Improvements in <head> */}
       <Head>
         <title>Kilifi Prime Plots - Your Gateway to Prime Land Ownership</title>
+        <FacebookPixel/>
         <meta
           name="description"
           content="Discover prime land ownership opportunities in Kilifi. Kilifi Prime Plots offers affordable, secure, and well-located plots for your dream investment."

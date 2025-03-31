@@ -68,14 +68,15 @@ useEffect(() => {
       setLoading(true);
       let query = supabase
         .from("plots")
-        .select("id, name, images, price, location, category(id, name, icon)");
-
+        .select("id, name, images, price, location, category(id, name, icon), created_at") 
+        .order("created_at", { ascending: false }); // Sort by created_at in descending order
+  
       if (selectedCategory) {
-        query = query.eq("category.name", selectedCategory); // Match category by name
+        query = query.eq("category.name", selectedCategory);
       }
-
+  
       const { data, error } = await query;
-
+  
       if (error) {
         console.error(error.message);
         setError("Failed to load products.");
@@ -91,7 +92,7 @@ useEffect(() => {
               : [], // Normalize to array
           })
         );
-
+  
         setProducts(validatedProducts);
       }
     } catch (err) {
@@ -101,9 +102,9 @@ useEffect(() => {
       setLoading(false);
     }
   };
-
+  
   fetchProducts();
-}, [selectedCategory]);
+  }, [selectedCategory]);
 
 // Filter products based on selected category
 const filteredProducts = selectedCategory
