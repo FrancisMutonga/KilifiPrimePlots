@@ -4,13 +4,13 @@ import Script from "next/script";
 
 const FacebookPixel = () => {
   useEffect(() => {
-    console.log("Facebook Pixel script loaded ✅"); // Debugging
+    console.log("Facebook Pixel script loaded ✅");
 
     if (typeof window !== "undefined") {
       if (!window.fbq) {
-        window.fbq = function (event: string, ...args: any[]) {
+        window.fbq = function (event: string, ...args: unknown[]) {
           if (window.fbq.callMethod) {
-            window.fbq.callMethod.apply(window.fbq, args);
+            window.fbq.callMethod(...args); // ✅ FIX: No `.apply()`, using spread operator
           } else {
             (window.fbq.queue ??= []).push(args);
           }

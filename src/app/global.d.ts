@@ -2,12 +2,12 @@ export {};
 
 declare global {
   interface Window {
-    fbq: ((event: string, ...args: any[]) => void) & {
-      callMethod?: (...args: any[]) => void;
-      queue?: any[];
+    fbq: ((event: string, ...args: unknown[]) => void) & {
+      callMethod?: (...args: unknown[]) => void;
+      queue?: unknown[];
       loaded?: boolean;
       version?: string;
-      push?: (...args: any[]) => void;
+      push?: (...args: unknown[]) => void;
     };
     _fbq?: typeof window.fbq;
   }
