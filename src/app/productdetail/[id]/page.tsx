@@ -17,6 +17,7 @@ interface Product {
   price: string;
   unitsavailable: string;
   category?: { name: string } | null;
+  available: boolean;
 }
 
 export default function Page() {
@@ -38,7 +39,7 @@ export default function Page() {
         const { data, error } = await supabase
           .from("plots")
           .select(
-            "id, name, images, description, features, category_id, unitsavailable, price, category(name)"
+            "id, name, images, description, features, category_id, unitsavailable, price, category(name),available"
           )
           .eq("id", id)
           .single();
@@ -204,6 +205,13 @@ export default function Page() {
             </span>{" "}
             {product.unitsavailable}
           </p>
+           <p
+          className={`text-md font-semibold ${
+            product.available ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {product.available ? "Available" : "Sold Out"}
+        </p>
         </div>
 
         <div className="flex flex-row gap-10 items-center justify-center"> 
@@ -213,9 +221,9 @@ export default function Page() {
             href="https://wa.me/+254708091755?text=I'm%20interested%20in%20booking%20a%20site%20visit%20for%20this%20property."
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-kilifigreen text-white p-3 rounded-md font-semibold hover:bg-green-700 transition"
+            className="bg-kilifigreen  sm:text-sm md:text-md lg:text-lg  text-white p-3 rounded-md font-semibold hover:bg-green-700 transition"
           >
-            📍 Book Site Visit
+           Book Site Visit
           </a>
         </div>
 
