@@ -28,7 +28,7 @@ const NewBlogPage = () => {
     try {
       // Upload file to Supabase Storage
       const fileName = `${Date.now()}_${file.name}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("blogs")
         .upload(fileName, file);
 
@@ -52,12 +52,15 @@ const NewBlogPage = () => {
 
       if (insertError) throw insertError;
 
-      router.push("/admin/blogs"); // Redirect to blogs list page
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
-    }
+      router.push("/admin/blogs"); 
+    } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("Something went wrong.");
+  }
+}
+
   };
 
   return (

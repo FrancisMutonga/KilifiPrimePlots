@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import Script from "next/script";
+import Image from "next/image";
 
 const FacebookPixel = () => {
   useEffect(() => {
@@ -37,7 +38,7 @@ const FacebookPixel = () => {
         onLoad={() => console.log("✅ Facebook script loaded successfully")}
       />
       <noscript>
-        <img
+        <Image
           height="1"
           width="1"
           style={{ display: "none" }}

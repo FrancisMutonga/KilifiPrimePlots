@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FaHome, FaUser, FaSignOutAlt, FaBars, FaUsers } from "react-icons/fa";
+import { FaHome, FaSignOutAlt, FaBars } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 import clsx from "clsx";

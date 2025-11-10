@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "./../../../supabaseClient";
+import Image from "next/image";
 
 export default function EditBlogPage() {
   const { id } = useParams<{ id: string }>();
@@ -132,10 +133,12 @@ export default function EditBlogPage() {
           mediaUrl && (
             <div className="mt-2">
               {mediaType === "image" ? (
-                <img
+                <Image
                   src={mediaUrl}
                   alt="Uploaded media"
                   className="rounded-lg w-full h-60 object-cover"
+                  height={60}
+                  width={80}
                 />
               ) : (
                 <video

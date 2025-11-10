@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
+import Image from "next/image";
 
 const Navbar: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -21,7 +22,7 @@ const Navbar: React.FC = () => {
       <div className="container mx-auto flex ml-4 justify-between items-center">
                 <div className="flex items-center space-x-4 -ml-4">
           <Link href="/auth/login">
-            <img src="/logo.png" alt="Logo" width={80} height={80} />
+            <Image src="/logo.png" alt="Logo" width={80} height={80} />
           </Link>
             </div>
 
