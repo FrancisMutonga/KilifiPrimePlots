@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { supabase } from "../supabaseClient";
-import ProductCard from "../components/productcard";
+import { supabase } from "../../supabaseClient";
+import ProductCard from "../../components/productcard";
 import Link from "next/link";
 import Image from "next/image";
-import Hero from "../components/news";
+import Hero from "../../components/news";
 
 interface Product {
   id: string;
@@ -14,6 +14,7 @@ interface Product {
   location: string;
   price: string;
   category:Category[];
+  available: boolean;
 }
 
 interface Category {
@@ -27,6 +28,7 @@ interface ProductResponse {
   images: string[];
   location: string;
   price: string;
+  available: boolean;
   category: Category[] | Category | null; // categories can be either an array or a single object or null
 }
 
@@ -68,7 +70,7 @@ useEffect(() => {
       setLoading(true);
       let query = supabase
         .from("plots")
-        .select("id, name, images, price, location, category(id, name, icon), created_at") 
+        .select("id, name, images, price, location, available, category(id, name, icon), created_at") 
         .order("created_at", { ascending: false }); // Sort by created_at in descending order
   
       if (selectedCategory) {
@@ -162,7 +164,7 @@ const filteredProducts = selectedCategory
         {filteredProducts.map((product) => (
           <Link key={product.id} href={`/productdetail/${product.id}`} passHref>
             <div className="cursor-pointer">
-              <ProductCard name={product.name} images={product.images} location={product.location} price={product.price}/>
+              <ProductCard name={product.name} images={product.images} location={product.location} available={product.available} price={product.price}/>
             </div>
           </Link>
         ))}

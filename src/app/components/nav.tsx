@@ -15,12 +15,12 @@ const Navbar: React.FC = () => {
 
   return (
     <nav
-      className=" fixed top-0 z-50 w-full flex text-kilifigreen p-4 shadow-[0_4px_4px_-2px_rgba(0,0,0,0.4)]"
+      className=" fixed top-0 z-50 w-full flex text-kilifigreen bg-beige/60 p-4 shadow-[0_4px_4px_-2px_rgba(0,0,0,0.4)]"
       style={{ fontFamily: "SegoeUI" }}
     >
       <div className="container mx-auto flex ml-4 justify-between items-center">
                 <div className="flex items-center space-x-4 -ml-4">
-          <Link href="/admin/login">
+          <Link href="/auth/login">
             <img src="/logo.png" alt="Logo" width={80} height={80} />
           </Link>
             </div>
@@ -55,6 +55,15 @@ const Navbar: React.FC = () => {
 
           <li>
             <Link
+              href="/blogs"
+              className="text-lg font-semi text-link hover:text-blue-900"
+            >
+              blogs
+            </Link>
+          </li>
+
+          <li>
+            <Link
               href="/contact"
               className="text-lg font-semi text-link hover:text-blue-900"
             >
@@ -74,7 +83,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {isDrawerOpen && (
-        <div className="md:hidden fixed top-0 right-0 h-full bg-nude z-40 flex flex-col items-start p-6 space-y-4 shadow-lg w-1/3 transition-transform transform">
+        <div className="md:hidden fixed top-0 right-0 h-full bg-beige/80 z-40 flex flex-col items-start p-6 space-y-4 shadow-lg w-1/3 transition-transform transform">
           <button
             onClick={handleDrawerLinkClick}
             className="self-end text-lg font-bold text-dark hover:text-blue-900 mb-4"
@@ -103,6 +112,14 @@ const Navbar: React.FC = () => {
             className="text-lg font-bold text-link hover:text-linkgreen"
           >
             Listings
+          </Link>
+
+          <Link
+            href="/blogs"
+            onClick={handleDrawerLinkClick}
+            className="text-lg font-bold text-link hover:text-linkgreen"
+          >
+            Blogs
           </Link>
 
           <Link

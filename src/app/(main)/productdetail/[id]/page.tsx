@@ -1,6 +1,6 @@
 "use client";
 
-import { supabase } from "../../supabaseClient";
+import { supabase } from "./../../../supabaseClient";
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -118,14 +118,23 @@ export default function Page() {
 
   return (
     <div className="min-h-screen flex items-center justify-center py-16 px-4 mt-10">
-      <div className="max-w-4xl w-full bg-beige/70 rounded-xl shadow-lg border border-gray-200 p-8">
+      <div className="max-w-4xl w-full bg-beige/85 rounded-xl shadow-xl  p-8">
         {/* Product Header */}
         <h1 className="text-4xl font-bold text-center text-kilifigreen mb-6">
           {product.name}
         </h1>
 
-        {/* Image Carousel */}
         <div className="relative w-full h-96 flex items-center justify-center">
+          {/* Sold Out Tag */}
+          {!product.available && (
+            <div className="absolute top-0 left-0 w-40 h-40 overflow-hidden z-20">
+              <div className="absolute top-6 -left-12 w-52 bg-red-600 text-white text-center font-bold text-xs tracking-widest transform -rotate-45 shadow-lg py-2">
+                SOLD OUT
+              </div>
+            </div>
+          )}
+
+          {/* Image Carousel */}
           <AnimatePresence mode="wait">
             <motion.div
               key={product.images[currentIndex]}
@@ -140,7 +149,9 @@ export default function Page() {
                 alt={`Image ${currentIndex + 1}`}
                 layout="fill"
                 objectFit="cover"
-                className="rounded-lg shadow-md"
+                className={`rounded-lg shadow-md ${
+                  !product.available ? "opacity-70" : ""
+                }`}
               />
             </motion.div>
           </AnimatePresence>
@@ -164,7 +175,7 @@ export default function Page() {
             {product.images.map((_, index) => (
               <span
                 key={index}
-                className={`h-3 w-3 rounded-full ${
+                className={`h-3 w-3 rounded-full cursor-pointer ${
                   currentIndex === index ? "bg-kilifigreen" : "bg-gray-300"
                 }`}
                 onClick={() => setCurrentIndex(index)}
@@ -205,37 +216,37 @@ export default function Page() {
             </span>{" "}
             {product.unitsavailable}
           </p>
-           <p
-          className={`text-md font-semibold ${
-            product.available ? "text-green-600" : "text-red-600"
-          }`}
-        >
-          {product.available ? "Available" : "Sold Out"}
-        </p>
+          <p
+            className={`text-md font-semibold ${
+              product.available ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {product.available ? "Available" : "Sold Out"}
+          </p>
         </div>
 
-        <div className="flex flex-row gap-10 items-center justify-center"> 
+        <div className="flex flex-col lg:flex-row gap-10 items-center justify-center mt-8">
           {/* CTA: Book Site Visit */}
-        <div className="mt-4 text-center">
-          <a
-            href="https://wa.me/+254708091755?text=I'm%20interested%20in%20booking%20a%20site%20visit%20for%20this%20property."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-kilifigreen  sm:text-sm md:text-md lg:text-lg  text-white p-3 rounded-md font-semibold hover:bg-green-700 transition"
-          >
-           Book Site Visit
-          </a>
-        </div>
+          <div className="mt-4 text-center">
+            <a
+              href="https://wa.me/+254708091755?text=I'm%20interested%20in%20booking%20a%20site%20visit%20for%20this%20property."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-kilifigreen  sm:text-sm md:text-md lg:text-lg  text-white p-3 rounded-full font-semibold hover:bg-green-700 transition px-6 py-3"
+            >
+              Book Site Visit
+            </a>
+          </div>
 
-        {/* Back to Products */}
-        <div className="mt-4 text-center">
-          <a
-            href="/products"
-            className="text-kilifigreen font-semibold hover:underline"
-          >
-            Back to Products
-          </a>
-        </div>
+          {/* Back to Products */}
+          <div className="mt-4 text-center">
+            <a
+              href="/products"
+              className="text-kilifigreen font-semibold hover:underline border border-kilifigreen rounded-full px-6 py-3"
+            >
+              Back to Products
+            </a>
+          </div>
         </div>
       </div>
     </div>

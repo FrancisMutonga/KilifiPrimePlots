@@ -125,100 +125,102 @@ const AddProduct = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 mt-20 flex flex-col items-center justify-center">
-      <h2 className="text-2xl mb-4 text-kilifigreen">Add New Product</h2>
+    <div className="min-h-screen overflow-x-hidden mt-8">
+      <div className="max-w-3xl mx-auto  p-6 flex flex-col gap-4">
+        <h2 className="text-2xl lg:text-5xl font-bold text-center text-kilifigreen">Add New Product</h2>
 
-      <div className="bg-white/40 p-6 shadow-md text-black rounded">
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Name"
-            className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
-          />
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Description"
-            className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
-          />
-          <textarea
-            value={features.join("\n")} // Convert array to newline-separated string
-            onChange={(e) => setFeatures(e.target.value.split("\n"))} // Convert input back to an array
-            placeholder="Enter each feature on a new line"
-            className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
-          ></textarea>
-
-          <input
-            type="text"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="Price"
-            className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
-          />
-          <input
-            type="text"
-            value={unitsavailable}
-            onChange={(e) => setUnitsavailable(e.target.value)}
-            placeholder="Available Units"
-            className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
-          />
-
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full mb-4 bg-gray-100 p-2 border border-gray-300 rounded"
-          >
-            <option value="">Select Category</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-
-          <textarea
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="Location"
-            className="w-full mb-4 bg-gray-200 p-2 border border-gray-300 rounded"
-          />
-
-          <div className="mb-4">
+        <div className="bg-beige/90 p-6 shadow-md text-black rounded-xl">
+          <form onSubmit={handleSubmit}>
             <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageUpload}
-              className="w-full p-2 bg-gray-200 border border-gray-300 rounded"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Name"
+              className="w-full mb-4 bg-white/50 p-2 border border-kilifigreen/40 rounded-xl"
             />
-            {imageFiles.length > 0 && (
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                {imageFiles.map((file, index) => (
-                  <Image
-                    key={index}
-                    src={URL.createObjectURL(file)}
-                    alt="Image Preview"
-                    width={50}
-                    height={50}
-                    className="object-cover rounded"
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Description"
+              className="w-full mb-4 bg-white/50 p-2 border border-kilifigreen/40 rounded-xl"
+            />
+            <textarea
+              value={features.join("\n")} // Convert array to newline-separated string
+              onChange={(e) => setFeatures(e.target.value.split("\n"))} // Convert input back to an array
+              placeholder="Enter each feature on a new line"
+              className="w-full mb-4 bg-white/50 p-2 border border-kilifigreen/40 rounded-xl"
+            ></textarea>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={`bg-dark text-white px-6 py-2 rounded mx-auto block ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {loading ? "Adding..." : "Add Product"}
-          </button>
-        </form>
+            <input
+              type="text"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="Price"
+              className="w-full mb-4 bg-white/50 p-2 border border-kilifigreen/40 rounded-xl"
+            />
+            <input
+              type="text"
+              value={unitsavailable}
+              onChange={(e) => setUnitsavailable(e.target.value)}
+              placeholder="Available Units"
+              className="w-full mb-4 bg-white/50 p-2 border border-kilifigreen/40 rounded-xl"
+            />
+
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full mb-4 bg-white/50 p-2 border border-kilifigreen/40 rounded-xl"
+            >
+              <option value="">Select Category</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+
+            <textarea
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Location"
+              className="w-full mb-4 bg-white/50 p-2 border border-kilifigreen/40 rounded-xl"
+            />
+
+            <div className="mb-4">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageUpload}
+                className="w-full mb-4 bg-white/50 p-2 border border-kilifigreen/40 rounded-xl"
+              />
+              {imageFiles.length > 0 && (
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  {imageFiles.map((file, index) => (
+                    <Image
+                      key={index}
+                      src={URL.createObjectURL(file)}
+                      alt="Image Preview"
+                      width={50}
+                      height={50}
+                      className="object-cover rounded"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={`bg-white/50 text-kilifigreen border border-kilifigreen px-6 py-2 rounded-full mx-auto block ${
+                loading ? "opacity-50 bg-kilifigreen text-white cursor-not-allowed" : ""
+              }`}
+            >
+              {loading ? "Adding..." : "Add Product"}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

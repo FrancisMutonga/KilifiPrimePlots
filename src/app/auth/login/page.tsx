@@ -1,4 +1,4 @@
-"use client"; // Explicitly mark this component as a client-side component
+"use client"; 
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -43,15 +43,15 @@ const AdminLogin: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center  p-4 " style={{ opacity: 0.75 }}>
-      <div className="w-full max-w-md bg-beige rounded-lg shadow-lg p-8">
-        <h2 className="text-2xl font-extrabold text-center mb-6 text-gray-800">
+    <div className="min-h-screen flex items-center justify-center  p-4 " >
+      <div className="w-full max-w-md bg-beige/90 rounded-lg shadow-lg p-8">
+        <h2 className="text-3xl lg:text-4xl font-bold text-center mb-6 text-kilifigreen">
           Please Login
         </h2>
         {error && <p className="text-red-500 text-center">{error}</p>}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-gray-700 font-bold">
+            <label htmlFor="email" className="block text-kilifigreen font-bold">
               Email
             </label>
             <input
@@ -59,12 +59,12 @@ const AdminLogin: React.FC = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300"
+              className="w-full px-4 py-2 border border-gray-200 rounded-xl bg-white/50"
               required
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-gray-700 font-bold">
+            <label htmlFor="password" className="block text-kilifigreen font-bold">
               Password
             </label>
             <input
@@ -72,14 +72,14 @@ const AdminLogin: React.FC = () => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300"
+              className="w-full px-4 py-2 border border-gray-200 rounded-xl bg-white/50 "
               required
             />
           </div>
           <div className="flex items-center justify-center">
             <button
               type="submit"
-              className="w-1/2 py-2 px-4 bg-kilifigreen text-white rounded-lg hover:bg-blue-700 focus:ring focus:ring-blue-300"
+              className=" py-3 px-6 border border-kilifigreen text-bold text-kilifigreen hover:text-white rounded-full bg-white/50  hover:bg-kilifigreen focus:ring focus:ring-blue-300"
               disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../supabaseClient";
+import Link from "next/link";
 
 interface Category {
   id: string;
@@ -79,7 +80,7 @@ const ProductList: React.FC = () => {
   const handleSave = async () => {
     if (!editingProduct) return;
     const { error } = await supabase
-      .from("plots") // Updated to match fetching logic
+      .from("plots") 
       .update({
         name: editingProduct.name,
         description: editingProduct.description,
@@ -106,15 +107,19 @@ const ProductList: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden mt-20">
+    <div className="min-h-screen overflow-x-hidden mt-8">
       <div className="w-full p-6 flex flex-col gap-4">
-        <h1 className="text-3xl font-bold text-center text-kilifigreen">
+        <div className=" flex flex-row gap-20 justify-center ">
+          <h1 className="text-3xl  lg:text-5xl font-bold text-center text-kilifigreen">
           Products
         </h1>
+        <Link href="/admin/add-product">
+        <h5 className="text-md lg:text-xl font-semibold border border-kilifigreen bg-beige/80 text-kilifigreen text-center rounded-full px-4 lg:px-6  py-3">+ New</h5></Link>
+        </div>
 
         {error && <p className="text-center text-red-500">{error}</p>}
 
-        <div className="mb-2 flex items-center justify-center gap-8">
+        <div className="mb-2 flex items-center justify-center gap-2">
           <label
             htmlFor="category"
             className="block text-lg font-bold text-kilifigreen mb-2"
@@ -123,7 +128,7 @@ const ProductList: React.FC = () => {
           </label>
           <select
             id="category"
-            className="px-4 py-2 border bg-gray-200 text-black rounded-md w-1/2"
+            className="px-4 py-2 border border-kilifigreen bg-beige/85 text-black rounded-full w-1/2"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
@@ -148,7 +153,7 @@ const ProductList: React.FC = () => {
           <p className="text-center text-gray-600">No products available.</p>
         ) : (
           <div className="w-full overflow-mx-auto">
-            <table className="border-collapse bg-gray-200 shadow-md rounded-lg overflow-hidden w-full">
+            <table className="border-collapse bg-beige/90 shadow-md rounded-lg overflow-hidden w-full">
               <thead>
                 <tr className="bg-kilifigreen text-white">
                   <th className="py-3 px-4 text-left">Name</th>
@@ -159,13 +164,13 @@ const ProductList: React.FC = () => {
               </thead>
               <tbody>
                 {products.map((product) => (
-                  <tr key={product.id} className="border-b text-black">
+                  <tr key={product.id} className="border-b border-kilifigreen/30 text-black">
                     <td className="py-3 px-4">{product.name}</td>
                     <td className="py-3 px-4">{product.price}</td>
                     <td className="py-3 px-4">
                       <button
                         onClick={() => handleEdit(product)}
-                        className="text-kilifigreen hover:underline"
+                        className="text-kilifigreen font-bold hover:underline"
                       >
                         Edit
                       </button>

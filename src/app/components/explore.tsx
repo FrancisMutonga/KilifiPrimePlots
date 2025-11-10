@@ -16,6 +16,7 @@ interface Product {
     images: string[];
     location: string;
     price: string;
+    available: boolean;
   }
   const Explore = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -47,7 +48,7 @@ interface Product {
         <div>
             {/* Explore Section */}
     <section className="my-8 ">
-      <h2 className="text-3xl font-bold text-dark mb-8 text-center">
+      <h2 className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-extrabold text-kilifigreen mb-8 text-center">
         Explore Our Collection
       </h2>
       <Swiper
@@ -65,7 +66,7 @@ interface Product {
           <SwiperSlide key={product.id}>
             <Link key={product.id} href={`/productdetail/${product.id}`} passHref>
         <div className="cursor-pointer">
-          <ProductCard name={product.name} images={product.images} location={product.location} price={product.price}/>
+          <ProductCard name={product.name} images={product.images} location={product.location} available={product.available} price={product.price}/>
         </div>
       </Link>
           </SwiperSlide>

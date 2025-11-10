@@ -34,14 +34,14 @@ const NewsManagement: React.FC = () => {
       if (error) {
         console.error("Error fetching news:", error);
       } else {
-        setNews(data || []); // Ensure we don't get null
+        setNews(data || []); 
       }
     };
 
     fetchNews();
   }, []);
 
-  // Handle input changes in the form
+ 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -60,13 +60,13 @@ const NewsManagement: React.FC = () => {
       return;
     }
 
-    // Define a unique file path to avoid conflicts
+    
     const filePath = `images/${Date.now()}_${file.name}`;
 
     try {
-      // Upload the file to Supabase storage
+     
       const { data, error } = await supabase.storage
-        .from("images") // Ensure this matches your bucket name
+        .from("images")
         .upload(filePath, file);
 
       if (error) {
@@ -77,7 +77,7 @@ const NewsManagement: React.FC = () => {
       if (data) {
         console.log("Upload successful:", data);
 
-        // Retrieve the public URL of the uploaded file
+       
         const { data: publicUrlData } = supabase.storage
           .from("images")
           .getPublicUrl(filePath);
@@ -87,7 +87,7 @@ const NewsManagement: React.FC = () => {
           return;
         }
 
-        // Update state with the public URL
+       
         setNewNews((prev) => ({
           ...prev,
           image: publicUrlData.publicUrl,
@@ -98,11 +98,11 @@ const NewsManagement: React.FC = () => {
     }
   };
 
-  // Handle form submit (Add or Update news)
+ 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editing) {
-      // Update existing news
+     
       const { error } = await supabase
         .from("news")
         .update({
@@ -116,7 +116,7 @@ const NewsManagement: React.FC = () => {
       if (error) {
         console.error("Error updating news:", error);
       } else {
-        // Fetch updated news list
+       
         setNews((prevNews) =>
           prevNews.map((item) =>
             item.id === editing.id ? { ...item, ...newNews } : item
@@ -127,7 +127,7 @@ const NewsManagement: React.FC = () => {
         setShowForm(false);
       }
     } else {
-      // Add new news
+    
       const { data, error } = await supabase.from("news").insert([newNews]);
 
       if (error) {
@@ -160,13 +160,13 @@ const NewsManagement: React.FC = () => {
     }
   };
 
-  // Show the form to add new news
+ 
   const handleAddNew = () => {
     setShowForm(true);
     setEditing(null);
   };
 
-  // Handle form cancel
+
   const handleCancel = () => {
     setShowForm(false);
     setNewNews({ title: "", description: "", image: "", publish_date: "" });
@@ -174,20 +174,20 @@ const NewsManagement: React.FC = () => {
   };
 
   return (
-    <div className="p-4 mt-20  ">
-      <h2 className="text-2xl font-bold mb-4 text-dark">Manage News</h2>
-
-      {/* Button to show the Add News Form */}
-      <button
+    <div className="p-4 mt-20 max-w-4xl mx-auto">
+     <div className=" flex  flex-row gap-20 justify-center ">
+       <h2 className="text-3xl lg:text-5xl text-center font-bold mb-4 text-kilifigreen">Manage News</h2>
+       <button
         onClick={handleAddNew}
-        className="bg-dark text-white p-2 rounded mb-4"
+        className="text-md lg:text-xl font-semibold border border-kilifigreen bg-beige/80 text-kilifigreen text-center rounded-full px-4 lg:px-6  py-3"
       >
-        Add New
+        + New
       </button>
+     </div>
 
       {/* Displaying current news */}
       <div className="mt-6 p-4 text-dark">
-        <h3 className="text-xl font-semibold">Current News</h3>
+        <h3 className="text-2xl lg:text-3xl text-kilifigreen font-semibold">Current News</h3>
         {news.length === 0 ? (
           <p>No news available</p>
         ) : (

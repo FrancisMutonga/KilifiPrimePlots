@@ -10,7 +10,7 @@ const FacebookPixel = () => {
       if (!window.fbq) {
         window.fbq = function (event: string, ...args: unknown[]) {
           if (window.fbq.callMethod) {
-            window.fbq.callMethod(...args); // ✅ FIX: No `.apply()`, using spread operator
+            window.fbq.callMethod(...args); 
           } else {
             (window.fbq.queue ??= []).push(args);
           }
@@ -22,7 +22,7 @@ const FacebookPixel = () => {
         window._fbq = window.fbq;
       }
 
-      window.fbq("init", "1129494388974080");
+     window.fbq("init", process.env.NEXT_PUBLIC_META_PIXEL_ID!);
       window.fbq("track", "PageView");
 
       console.log("✅ Facebook Pixel initialized:", window.fbq);

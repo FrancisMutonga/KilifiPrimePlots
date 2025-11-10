@@ -12,13 +12,21 @@ interface ProductCardProps {
   images: string[]; // Accept multiple images
   location: string;
   price: string;
+  available: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ name, images, location, price }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ name, images, location, price, available,}) => {
   return (
-    <div className="rounded-xl overflow-hidden shadow-lg bg-beige/70 border border-gray-200 hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col">
+    <div className="rounded-xl overflow-hidden shadow-lg bg-beige/90 border border-gray-200 hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col">
       {/* Image Carousel */}
       <div className="relative w-full h-64">
+        {!available && (
+          <div className="absolute top-0 left-0 w-40 h-40 overflow-hidden z-20">
+            <div className="absolute top-6 -left-12 w-52 bg-gradient-to-r from-red-700 to-red-500 text-white text-center font-bold text-xs tracking-widest transform -rotate-45 shadow-lg py-2">
+              SOLD OUT
+            </div>
+          </div>
+        )}
         <Swiper
           modules={[Pagination, Autoplay]}
           pagination={{ clickable: true }}
@@ -42,7 +50,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, images, location, price
 
       {/* Text content */}
       <div className="p-6 flex flex-col space-y-3">
-        <h3 className="text-lg font-semibold text-dark">{name}</h3>
+        <h3 className="text-lg font-semibold text-extrabold text-kilifigreen">{name}</h3>
         <p className="text-sm text-gray-600">
           <span className="font-medium">Price:</span> {price}
         </p>

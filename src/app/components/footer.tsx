@@ -9,16 +9,17 @@ const Footer: React.FC = () => {
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
         <div>
           {/* Logo Section */}
-          <div className="mb-4">
+          <div className="mb-4 flex justify-center">
             <Image
               src="/logowhite.png"
               alt="Company Logo"
-              className="hover:opacity-80 transition-opacity duration-300"
-              height={20}
-              width={20}
+              className="hover:opacity-80 transition-opacity duration-300 w-40 sm:w-52 md:w-64 lg:w-72 h-auto"
+              width={288}
+              height={288}
             />
           </div>
         </div>
+
         {/* Contact Us Section */}
         <div className="w-full md:w-1/3 mb-6 md:mb-0">
           <h3 className="text-xl font-bold mb-3">Contact Us</h3>
