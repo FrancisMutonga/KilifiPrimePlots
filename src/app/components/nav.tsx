@@ -84,7 +84,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {isDrawerOpen && (
-        <div className="md:hidden fixed top-0 right-0 h-full bg-beige/80 z-40 flex flex-col items-start p-6 space-y-4 shadow-lg w-1/3 transition-transform transform">
+        <div className="md:hidden fixed top-0 right-0 h-full bg-beige z-40 flex flex-col items-start p-6 space-y-4 shadow-lg w-1/3 transition-transform transform">
           <button
             onClick={handleDrawerLinkClick}
             className="self-end text-lg font-bold text-dark hover:text-blue-900 mb-4"

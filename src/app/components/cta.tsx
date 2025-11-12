@@ -24,8 +24,8 @@ const CTASection = () => {
           viewport={{ once: true }}
           className="text-lg md:text-xl text-gray-700 max-w-2xl mx-auto"
         >
-          Secure your future with affordable and verified land investments across Kenya.
-          Whether you&apos;re buying your first plot or expanding your portfolio — we&apo;ve got you covered.
+          Secure your future with Genuine and Verified land investments across Coast.
+          Whether you&apos;re buying your first plot or expanding your portfolio — we&apos;ve got you covered.
         </motion.p>
 
         <motion.div
@@ -36,7 +36,7 @@ const CTASection = () => {
           className="flex justify-center gap-6 flex-wrap"
         >
           <Link
-            href="/listings"
+            href="/products"
             className="inline-block bg-green-700 text-white px-8 py-3 rounded-full font-semibold shadow-md hover:bg-green-800 transition duration-300"
           >
             View Available Plots

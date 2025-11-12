@@ -25,7 +25,7 @@ export default function MainLayout({
 
               target="_blank"
               rel="noopener noreferrer"
-              className="fixed bottom-12 right-12  bg-white\30 text-green flex items-center gap-2 px-4 py-2 rounded-full shadow-lg hover:bg-green-600 transition-all"
+              className="fixed bottom-12 right-12  bg-beige/80  flex items-center gap-2 px-4 py-2 rounded-full shadow-lg hover:bg-green-600 transition-all"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -37,6 +37,8 @@ export default function MainLayout({
                
               </svg>
              
+             <span className="font-semibold text-kilifigreen hover:text-beige text-lg">Let&apos;s Chat</span>
+
             </a>
           )
         </div>

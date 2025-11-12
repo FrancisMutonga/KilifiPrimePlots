@@ -5,10 +5,10 @@ const ContactPage: React.FC = () => {
   return (
     <div className=" mx-auto bg-forest p-8 mt-20">
       {/* Contact Form Section */}
-      <section className="mb-12 " style={{ opacity: 0.75 }}>
-        <h2 className="text-3xl font-extrabold text-center mb-8">Contact Us</h2>
+      <section className="mb-12 " >
+        <h2 className="text-3xl lg:text-5xl text-kilifigreen font-extrabold text-center mb-8">Contact Us</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <form className="bg-gray-200 p-8 space-y-8 rounded-lg shadow-lg">
+          <form className="bg-white/90 p-8 space-y-8 rounded-lg shadow-lg">
             <h3 className="text-lg font-extrabold text-black text-left ">Write us a Message</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name Fields */}
@@ -90,30 +90,30 @@ const ContactPage: React.FC = () => {
           </form>
 
           {/* Contact Info Card */}
-          <div className="bg-beige p-8  space-y-12 Sitems-start rounded-lg shadow-xl text-black "style={{ opacity: 0.80 }}>
-            <h3 className="text-2xl font-extrabold text-left mb-6">Our Contact Information</h3>
-            <div className="space-y-4 ">
+          <div className="bg-beige p-8  space-y-8 Sitems-start rounded-2xl shadow-xl text-black ">
+            <h3 className="text-2xl lg:text-4xl font-bold  text-kilifigreen text-center ">Our Contact Information</h3>
+            <div className="space-y-4 text-kilifigreen ">
               <div className="flex items-center ">
-                <FaPhoneAlt className="text-black mr-4" />
+                <FaPhoneAlt className="text-kilifigreen mr-4" />
                 <span className="text-lg">+254708091755.</span>
               </div>
               <div className="flex items-center">
-                <FaEnvelope className="text-black mr-4" />
-                <span className="text-lg">  info@Kilifiprime@gmail.com</span>
+                <FaEnvelope className="text-kilifigreen mr-4" />
+                <span className="text-lg">  Kilifiprimeplots@gmail.com</span>
               </div>
               <div className="flex items-center">
-                <FaMapMarkerAlt className="text-black mr-4" />
-                <span className="text-lg">Kifili, Kenya</span>
+                <FaMapMarkerAlt className="text-kilifigreen mr-4" />
+                <span className="text-lg">Baobao Plaza,Kifili, Kenya</span>
               </div>
               <div className="flex gap-12 items-startjustify-center text-xl">
                 <a href="https://www.facebook.com/people/Kilifi-Prime-Plots/61558718026419/" target="_blank" rel="noopener noreferrer">
-                  <FaFacebookF className="text-black hover:text-blue-800" />
+                  <FaFacebookF className="text-kilifigreen hover:text-blue-800" />
                 </a>
                 <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-                  <FaWhatsapp className="text-black hover:text-blue-600" />
+                  <FaWhatsapp className="text-kilifigreen hover:text-blue-600" />
                 </a>
                 <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-                  <FaInstagram className="text-black hover:text-blue-900" />
+                  <FaInstagram className="text-kilifigreen hover:text-blue-900" />
                 </a>
               </div>
             </div>

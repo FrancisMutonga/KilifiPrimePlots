@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "./../../../supabaseClient";
 import Image from "next/image";
+import Link from "next/link";
 
 interface BlogPost {
   id: number;
   title: string;
   description: string;
-  media_type: "image" | "video";
-  media_url: string;
+  mediaType: "image" | "video";
+  mediaUrl: string;
 }
 
 export default function BlogDetails() {
@@ -45,12 +46,12 @@ export default function BlogDetails() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto py-16 px-4 mt-10">
+    <div className="max-w-5xl mx-auto py-16 px-8 rounded-xl mt-10 bg-beige">
       <h1 className="text-4xl font-bold text-kilifigreen text-center mb-6">{post.title}</h1>
 
-      {post.media_type === "image" ? (
+      {post.mediaType === "image" ? (
         <Image
-          src={post.media_url}
+          src={post.mediaUrl}
           alt={post.title}
           width={1200}
           height={600}
@@ -58,13 +59,17 @@ export default function BlogDetails() {
         />
       ) : (
         <video
-          src={post.media_url}
+          src={post.mediaUrl}
           controls
           className="w-full rounded-xl shadow-lg mb-8"
         />
       )}
 
       <p className="text-gray-700 text-lg leading-relaxed">{post.description}</p>
-    </div>
+      <div className=" text-center mt-10">
+        <Link href={"/blogs"} className=" text-lg lg:text-xl text-center text-kilifigreen hover:text-white bg-white hover:bg-kilifigreen px-6 py-3 border border-kilifigreen rounded-full"> Back</Link>
+    
+      </div>
+      </div>
   );
 }

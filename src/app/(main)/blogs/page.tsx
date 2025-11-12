@@ -10,8 +10,8 @@ interface BlogPost {
   id: number;
   title: string;
   description: string;
-  media_type: "image" | "video";
-  media_url: string;
+  mediaType: "image" | "video";
+  mediaUrl: string;
 }
 
 export default function BlogPage() {
@@ -60,16 +60,16 @@ export default function BlogPage() {
             viewport={{ once: true }}
           >
             <div className="relative w-full h-56">
-              {post.media_type === "image" ? (
+              {post.mediaType === "image" ? (
                 <Image
-                  src={post.media_url}
+                  src={post.mediaUrl}
                   alt={post.title}
                   fill
                   className="object-cover"
                 />
               ) : (
                 <video
-                  src={post.media_url}
+                  src={post.mediaUrl}
                   controls
                   className="w-full h-full object-cover"
                 />
