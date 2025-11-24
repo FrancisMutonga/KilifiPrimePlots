@@ -25,20 +25,20 @@ const Footer: React.FC = () => {
           <h3 className="text-xl font-bold mb-3">Contact Us</h3>
           <ul className="space-y-2">
             <li className="text-sm">
-              <span className="font-semibold">Kilifi Kilifi,</span>
+              <span className="font-semibold">Baobao plaza ,Kilifi, Kenya</span>
             </li>
             <li className="text-sm">
               <span className="font-semibold">Phone:</span> 0708091755
             </li>
             <li className="text-sm">
               <span className="font-semibold">Email:</span>{" "}
-              info@kilifiprimeplot.com
+               kilifiprimeplots@gmail.com
             </li>
           </ul>
         </div>
 
         {/* Quick Links Section */}
-        <div>
+        <div className="w-full md:w-1/3 mb-6 md:mb-0">
           <h3 className="text-xl font-semibold wmb-3">Quick Links</h3>
           <ul className="space-y-1">
             <li>
@@ -52,10 +52,26 @@ const Footer: React.FC = () => {
 
             <li>
               <Link
+                href="/about"
+                className="text-white text-sm hover:text-forest transition-colors"
+              >
+                About
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/listings"
                 className="text-white text-sm hover:text-forest transition-colors"
               >
                 Listings
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/blogs"
+                className="text-white text-sm hover:text-forest transition-colors"
+              >
+                Blogs
               </Link>
             </li>
             <li>

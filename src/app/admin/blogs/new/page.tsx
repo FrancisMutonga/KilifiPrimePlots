@@ -10,6 +10,7 @@ const NewBlogPage = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [mediaType, setMediaType] = useState<"image" | "video">("image");
+  const [blogLink, setBlogLink] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -47,20 +48,20 @@ const NewBlogPage = () => {
           description,
           mediaType,
           mediaUrl,
+           blogLink: blogLink || null,
         },
       ]);
 
       if (insertError) throw insertError;
 
-      router.push("/admin/blogs"); 
+      router.push("/admin/blogs");
     } catch (err: unknown) {
-  if (err instanceof Error) {
-    setError(err.message);
-  } else {
-    setError("Something went wrong.");
-  }
-}
-
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong.");
+      }
+    }
   };
 
   return (
@@ -86,7 +87,7 @@ const NewBlogPage = () => {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full border rounded-2xl p-3 focus:outline-green-700"
+              className="w-full border rounded-2xl p-3 text-gray-800 focus:outline-green-700"
               placeholder="Enter blog title"
             />
           </div>
@@ -99,7 +100,7 @@ const NewBlogPage = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={5}
-              className="w-full border rounded-lg p-3 focus:outline-green-700"
+              className="w-full border rounded-lg p-3 text-gray-800 focus:outline-green-700"
               placeholder="Write your blog description..."
             />
           </div>
@@ -114,7 +115,7 @@ const NewBlogPage = () => {
                 onChange={(e) =>
                   setMediaType(e.target.value as "image" | "video")
                 }
-                className="w-full border rounded-lg p-3 focus:outline-green-700"
+                className="w-full border rounded-lg p-3 text-gray-800 focus:outline-green-700"
               >
                 <option value="image">Image</option>
                 <option value="video">Video</option>
@@ -131,7 +132,19 @@ const NewBlogPage = () => {
                 onChange={(e) =>
                   setFile(e.target.files ? e.target.files[0] : null)
                 }
-                className="w-full border rounded-lg p-2"
+                className="w-full border rounded-lg text-gray-800 p-2"
+              />
+            </div>
+            <div>
+              <label className="block text-kilifigreen font-semibold mb-2">
+                External Blog Link (Optional)
+              </label>
+              <input
+                type="url"
+                value={blogLink}
+                onChange={(e) => setBlogLink(e.target.value)}
+                placeholder="https://example.com"
+                className="w-full border rounded-lg p-3 text-gray-600 focus:outline-green-700"
               />
             </div>
           </div>

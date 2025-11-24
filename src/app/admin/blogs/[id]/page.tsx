@@ -14,6 +14,8 @@ export default function EditBlogPage() {
   const [mediaUrl, setMediaUrl] = useState("");
   const [mediaType, setMediaType] = useState<"image" | "video">("image");
   const [uploading, setUploading] = useState(false);
+  const [blogLink, setBlogLink] = useState("");
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,6 +32,7 @@ export default function EditBlogPage() {
         setDescription(data.description);
         setMediaUrl(data.mediaUrl);
         setMediaType(data.mediaType);
+        setBlogLink(data.blogLink || "");
       }
       setLoading(false);
     };
@@ -37,7 +40,9 @@ export default function EditBlogPage() {
     fetchBlog();
   }, [id]);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     try {
       setUploading(true);
       const file = event.target.files?.[0];
@@ -47,7 +52,7 @@ export default function EditBlogPage() {
       const filePath = `${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("blogs") 
+        .from("blogs")
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
@@ -73,6 +78,7 @@ export default function EditBlogPage() {
         description,
         mediaUrl,
         mediaType,
+        blogLink,
       })
       .eq("id", id);
 
@@ -92,7 +98,9 @@ export default function EditBlogPage() {
 
   return (
     <section className="max-w-3xl mx-auto p-10">
-      <h1 className="text-2xl lg:text-5xl font-bold text-kilifigreen text-center mb-6">Edit Blog Post</h1>
+      <h1 className="text-2xl lg:text-5xl font-bold text-kilifigreen text-center mb-6">
+        Edit Blog Post
+      </h1>
 
       <div className="flex flex-col gap-4">
         <input
@@ -110,7 +118,14 @@ export default function EditBlogPage() {
           rows={6}
           className="border border-kilifigreen/50 bg-beige/90 text-black py-3 px-6 rounded-2xl"
         />
-
+         <input
+            type="url"
+            value={blogLink}
+            onChange={(e) => setBlogLink(e.target.value)}
+            placeholder="External Blog Link (Optional)"
+            className="border border-kilifigreen/50 bg-beige/90 text-black py-3 px-6 rounded-2xl"
+          />
+       
         <select
           value={mediaType}
           onChange={(e) => setMediaType(e.target.value as "image" | "video")}
