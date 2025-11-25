@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, ChangeEvent, FormEvent } from "react";
-import emailjs from "emailjs-com";
+import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import emailjs from "@emailjs/browser";
 import {
   FaPhoneAlt,
   FaEnvelope,
@@ -11,7 +11,15 @@ import {
   FaInstagram,
 } from "react-icons/fa";
 
+
+
+
 const ContactPage = () => {
+
+  useEffect(() => {
+  emailjs.init(process.env.NEXT_PUBLIC_EMAIL_PUBLIC_KEY!);
+}, []);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
