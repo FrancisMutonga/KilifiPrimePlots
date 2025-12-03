@@ -8,11 +8,8 @@ import { motion } from "framer-motion";
 interface BlogPost {
   id: string;
   title: string;
-  description: string;
   created_at: string;
-  mediaType: "image" | "video";
-  mediaUrl: string;
-}
+  }
 
 export default function AdminBlogs() {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
@@ -42,11 +39,15 @@ export default function AdminBlogs() {
     );
 
   return (
-    <section className="p-10  min-h-screen">
-      <div className="flex flex-row gap-20 justify-center">
-        <h1 className="text-3xl lg:text-5xl font-bold text-kilifigreen mb-6">All Blogs</h1>
+    <section className="p-10 max-w-6xl min-h-screen">
+      <div className=" flex flex-row gap-20 justify-center">
+        <h1 className="text-3xl lg:text-5xl font-bold text-kilifigreen mb-6">
+          All Blogs
+        </h1>
         <Link href="/admin/blogs/new">
-        <h5 className="text-md lg:text-xl font-semibold border border-kilifigreen bg-beige/80 text-kilifigreen text-center rounded-full px-4 lg:px-6  py-3">+ New</h5>
+          <h5 className="text-md lg:text-xl font-semibold border border-kilifigreen bg-beige/80 text-kilifigreen text-center rounded-full px-4 lg:px-6  py-3">
+            + New
+          </h5>
         </Link>
       </div>
 
@@ -64,10 +65,7 @@ export default function AdminBlogs() {
               <h2 className="text-xl lg:text-3xl font-semibold text-green-700 mb-2">
                 {post.title}
               </h2>
-              <p className="text-gray-600 line-clamp-3 mb-3">
-                {post.description}
-              </p>
-              <p className="text-sm text-gray-400 mb-3">
+              <p className="text-sm text-gray-600 mb-3">
                 {new Date(post.created_at).toLocaleDateString()}
               </p>
               <Link

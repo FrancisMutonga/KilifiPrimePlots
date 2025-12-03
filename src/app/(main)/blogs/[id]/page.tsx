@@ -68,9 +68,10 @@ export default function BlogDetails() {
         />
       )}
 
-      <p className="text-gray-700 text-lg leading-relaxed">
-        {post.description}
-      </p>
+      <div
+        className="prose max-w-none text-gray-700"
+        dangerouslySetInnerHTML={{ __html: post.description }}
+      />
 
       {post.blogLink && (
         <p className="mt-6 text-center text-kilifigreen text-lg">

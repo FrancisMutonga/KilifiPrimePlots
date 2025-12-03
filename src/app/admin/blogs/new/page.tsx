@@ -15,6 +15,57 @@ const NewBlogPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+   const convertPlainTextToHTML = (text: string) => {
+    const lines = text.split(/\r?\n/);
+    let html = "";
+    let inUL = false;
+    let inOL = false;
+
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+
+      if (!trimmed) return; // skip empty lines
+
+      // Bullets (- text)
+      if (/^-\s+/.test(trimmed)) {
+        if (!inUL) {
+          html += "<ul>";
+          inUL = true;
+        }
+        html += `<li>${trimmed.replace(/^- /, "")}</li>`;
+      } 
+      // Numbered (1. text)
+      else if (/^\d+\.\s+/.test(trimmed)) {
+        if (!inOL) {
+          html += "<ol>";
+          inOL = true;
+        }
+        html += `<li>${trimmed.replace(/^\d+\.\s+/, "")}</li>`;
+      } 
+      else {
+        if (inUL) {
+          html += "</ul>";
+          inUL = false;
+        }
+        if (inOL) {
+          html += "</ol>";
+          inOL = false;
+        }
+        // Convert simple markers to HTML
+        let lineHTML = trimmed
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")   // **bold**
+          .replace(/\*(.*?)\*/g, "<em>$1</em>")              // *italic*
+          .replace(/__(.*?)__/g, "<u>$1</u>");               // __underline__
+        html += `<p>${lineHTML}</p>`;
+      }
+    });
+
+    if (inUL) html += "</ul>";
+    if (inOL) html += "</ol>";
+
+    return html;
+  };
+
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -41,11 +92,14 @@ const NewBlogPage = () => {
 
       const mediaUrl = publicUrlData.publicUrl;
 
+       // Convert description to HTML
+      const descriptionHTML = convertPlainTextToHTML(description);
+
       // Save blog info to database
       const { error: insertError } = await supabase.from("blogs").insert([
         {
           title,
-          description,
+         description: descriptionHTML,
           mediaType,
           mediaUrl,
            blogLink: blogLink || null,

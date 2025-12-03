@@ -78,7 +78,7 @@ export default function BlogPage() {
 
             <div className="p-6 flex flex-col gap-3 text-center">
               <h2 className="text-xl lg:text-3xl font-bold text-green-700">{post.title}</h2>
-              <p className="text-gray-600 line-clamp-3">{post.description}</p>
+              
               <Link
                 href={`/blogs/${post.id}`}
                 className="mt-2 text-green-700 font-semibold hover:underline"

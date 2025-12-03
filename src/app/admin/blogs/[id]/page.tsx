@@ -111,21 +111,24 @@ export default function EditBlogPage() {
           className="border border-kilifigreen/50 bg-beige/90 text-black py-3 px-6 rounded-2xl"
         />
 
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Blog Description"
-          rows={6}
+        <div
+          contentEditable
+          suppressContentEditableWarning
+          className="border border-kilifigreen/50 bg-beige/90 text-black py-3 px-6 rounded-2xl min-h-[150px] prose"
+          onInput={(e) =>
+            setDescription((e.target as HTMLDivElement).innerHTML)
+          }
+          dangerouslySetInnerHTML={{ __html: description }}
+        ></div>
+
+        <input
+          type="url"
+          value={blogLink}
+          onChange={(e) => setBlogLink(e.target.value)}
+          placeholder="External Blog Link (Optional)"
           className="border border-kilifigreen/50 bg-beige/90 text-black py-3 px-6 rounded-2xl"
         />
-         <input
-            type="url"
-            value={blogLink}
-            onChange={(e) => setBlogLink(e.target.value)}
-            placeholder="External Blog Link (Optional)"
-            className="border border-kilifigreen/50 bg-beige/90 text-black py-3 px-6 rounded-2xl"
-          />
-       
+
         <select
           value={mediaType}
           onChange={(e) => setMediaType(e.target.value as "image" | "video")}
