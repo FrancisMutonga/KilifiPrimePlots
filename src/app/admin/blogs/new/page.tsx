@@ -52,10 +52,10 @@ const NewBlogPage = () => {
           inOL = false;
         }
         // Convert simple markers to HTML
-        let lineHTML = trimmed
-          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")   // **bold**
-          .replace(/\*(.*?)\*/g, "<em>$1</em>")              // *italic*
-          .replace(/__(.*?)__/g, "<u>$1</u>");               // __underline__
+        const lineHTML = trimmed
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")   
+          .replace(/\*(.*?)\*/g, "<em>$1</em>")              
+          .replace(/__(.*?)__/g, "<u>$1</u>");               
         html += `<p>${lineHTML}</p>`;
       }
     });
