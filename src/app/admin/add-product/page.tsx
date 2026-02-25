@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../supabaseClient";
+import { db, storage } from "../../firebase/client";
+import { collection, getDocs, addDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Image from "next/image";
 
 interface Category {
@@ -26,15 +28,19 @@ const AddProduct = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const { data, error } = await supabase
-        .from("category")
-        .select("id, name");
-      if (error) {
+      try {
+        const snapshot = await getDocs(collection(db, "category"));
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Category[];
+
+        setCategories(data);
+      } catch (error) {
         console.error("Error fetching categories:", error);
-      } else {
-        setCategories(data || []);
       }
     };
+
     fetchCategories();
   }, []);
 
@@ -47,27 +53,21 @@ const AddProduct = () => {
     setImageFiles(uploadedFiles);
 
     for (const file of files) {
-      const fileName = `${Date.now()}-${file.name}`;
-      const filePath = `images/${fileName}`;
+      try {
+        const fileName = `${Date.now()}-${file.name}`;
+        const storageRef = ref(storage, `images/${fileName}`);
 
-      const { error } = await supabase.storage
-        .from("images")
-        .upload(filePath, file);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
 
-      if (error) {
-        console.error("Error uploading image", error.message);
-        alert(`Failed to upload ${file.name}: ${error.message}`);
-        continue;
-      }
-
-      const publicUrl = supabase.storage.from("images").getPublicUrl(filePath)
-        .data.publicUrl;
-      if (publicUrl) {
-        uploadedUrls.push(publicUrl);
+        uploadedUrls.push(downloadURL);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        alert(`Failed to upload ${file.name}`);
       }
     }
 
-    setImages((prevImages) => [...prevImages, ...uploadedUrls]);
+    setImages((prev) => [...prev, ...uploadedUrls]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,8 +88,8 @@ const AddProduct = () => {
     if (loading) return; // Prevent multiple clicks
     setLoading(true);
 
-    const { error } = await supabase.from("plots").insert([
-      {
+    try {
+      await addDoc(collection(db, "plots"), {
         name,
         description,
         features,
@@ -98,16 +98,12 @@ const AddProduct = () => {
         location,
         images,
         unitsavailable,
-      },
-    ]);
+        available: true,
+        createdAt: new Date(),
+      });
 
-    if (error) {
-      console.error("Error adding product:", error.message);
-      alert("Failed to add product. Please try again.");
-    } else {
       alert("Product added successfully!");
 
-      // Reset form fields
       setName("");
       setDescription("");
       setFeatures([]);
@@ -119,6 +115,9 @@ const AddProduct = () => {
       setImageFiles([]);
 
       router.push("/admin/dashboard");
+    } catch (error) {
+      console.error("Error adding product:", error);
+      alert("Failed to add product.");
     }
 
     setLoading(false);
@@ -127,7 +126,9 @@ const AddProduct = () => {
   return (
     <div className="min-h-screen overflow-x-hidden mt-8">
       <div className="max-w-3xl mx-auto  p-6 flex flex-col gap-4">
-        <h2 className="text-2xl lg:text-5xl font-bold text-center text-kilifigreen">Add New Product</h2>
+        <h2 className="text-2xl lg:text-5xl font-bold text-center text-kilifigreen">
+          Add New Product
+        </h2>
 
         <div className="bg-beige/90 p-6 shadow-md text-black rounded-xl">
           <form onSubmit={handleSubmit}>
@@ -214,7 +215,9 @@ const AddProduct = () => {
               type="submit"
               disabled={loading}
               className={`bg-white/50 text-kilifigreen border border-kilifigreen px-6 py-2 rounded-full mx-auto block ${
-                loading ? "opacity-50 bg-kilifigreen text-white cursor-not-allowed" : ""
+                loading
+                  ? "opacity-50 bg-kilifigreen text-white cursor-not-allowed"
+                  : ""
               }`}
             >
               {loading ? "Adding..." : "Add Product"}

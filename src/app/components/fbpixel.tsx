@@ -1,51 +1,32 @@
 "use client";
 import { useEffect } from "react";
 import Script from "next/script";
-import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const FacebookPixel = () => {
+  const pathname = usePathname();
+
   useEffect(() => {
-    console.log("Facebook Pixel script loaded ✅");
-
-    if (typeof window !== "undefined") {
-      if (!window.fbq) {
-        window.fbq = function (event: string, ...args: unknown[]) {
-          if (window.fbq.callMethod) {
-            window.fbq.callMethod(...args); 
-          } else {
-            (window.fbq.queue ??= []).push(args);
-          }
-        } as typeof window.fbq;
-
-        window.fbq.queue = [];
-        window.fbq.loaded = true;
-        window.fbq.version = "2.0";
-        window._fbq = window.fbq;
-      }
-
-     window.fbq("init", process.env.NEXT_PUBLIC_META_PIXEL_ID!);
-      window.fbq("track", "PageView");
-
-      console.log("✅ Facebook Pixel initialized:", window.fbq);
-    }
-  }, []);
+    if (!window.fbq) return;
+    window.fbq("track", "PageView");
+  }, [pathname]);
 
   return (
     <>
-      <Script
-        strategy="afterInteractive"
-        src="https://connect.facebook.net/en_US/fbevents.js"
-        onLoad={() => console.log("✅ Facebook script loaded successfully")}
-      />
-      <noscript>
-        <Image
-          height="1"
-          width="1"
-          style={{ display: "none" }}
-          src="https://www.facebook.com/tr?id=1129494388974080&ev=PageView&noscript=1"
-          alt="Facebook Pixel"
-        />
-      </noscript>
+      <Script id="fb-pixel" strategy="afterInteractive">
+        {`
+          !function(f,b,e,v,n,t,s)
+          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t,s)}(window, document,'script',
+          'https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', '${process.env.NEXT_PUBLIC_META_PIXEL_ID}');
+          fbq('track', 'PageView');
+        `}
+      </Script>
     </>
   );
 };

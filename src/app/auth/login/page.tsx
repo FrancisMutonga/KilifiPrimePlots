@@ -1,45 +1,37 @@
-"use client"; 
+"use client";
 
-import React, { useState, useEffect } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase/client";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../supabaseClient";
-import { Suspense } from "react";
+import { useState, ChangeEvent, FormEvent } from "react";
 
-const AdminLogin: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+export default function SigninPage() {
   const router = useRouter();
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Handle error from the query string if necessary
-    const searchParams = new URLSearchParams(window.location.search);
-    const errorParam = searchParams.get("error");
-    if (errorParam) {
-      setError(decodeURIComponent(errorParam.replace(/_/g, " ")));
-    }
-  }, []);
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError("Invalid email or password.");
-      setLoading(false);
-    } else {
-      // Redirect after login
-      const searchParams = new URLSearchParams(window.location.search);
-      const redirectTo = searchParams.get("redirect") || "/admin/dashboard";
-      router.push(redirectTo);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push("/admin/dashboard");
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred.");
+      }
     }
+  };
+
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
   };
 
   return (
@@ -89,12 +81,6 @@ const AdminLogin: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default function SuspenseWrappedAdminLogin() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <AdminLogin />
-    </Suspense>
-  );
 }
+
+

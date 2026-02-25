@@ -4,7 +4,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import { supabase } from "../supabaseClient";
+import { collection,query, orderBy, getDocs } from "firebase/firestore";
+import { db } from "../firebase/client";
 import Image from "next/image";
 
 interface News {
@@ -18,28 +19,38 @@ interface News {
 const Hero: React.FC = () => {
   const [news, setNews] = useState<News[]>([]);
 
-  useEffect(() => {
-    const fetchNews = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("news")
-          .select("id, title, description, image, publish_date")
-          .order("publish_date", { ascending: false });
+useEffect(() => {
+  const fetchNews = async () => {
+    try {
+      const q = query(
+        collection(db, "news"),
+        orderBy("publish_date", "desc")
+      );
 
-        if (error) {
-          console.error("Failed to fetch news:", error.message);
-          return;
-        }
+      const snapshot = await getDocs(q);
 
-        console.log("Fetched news data:", data);
-        setNews(data || []);
-      } catch (err) {
-        console.error("Unexpected error:", err);
-      }
-    };
+      const data: News[] = snapshot.docs.map((doc) => {
+        const docData = doc.data();
 
-    fetchNews();
-  }, []);
+        return {
+          id: doc.id,
+          title: docData.title || "",
+          description: docData.description || "",
+          image: docData.image || "",
+          publish_date: docData.publish_date?.toDate
+            ? docData.publish_date.toDate()
+            : new Date(docData.publish_date) 
+        };
+      });
+
+      setNews(data);
+    } catch (err) {
+      console.error("Failed to fetch news:", err);
+    }
+  };
+
+  fetchNews();
+}, []);
 
   return (
     <div className="relative w-full mb-20">

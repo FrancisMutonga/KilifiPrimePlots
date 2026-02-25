@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { supabase } from "./../../supabaseClient";
+import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { db } from "../../firebase/client";
 
 interface BlogPost {
-  id: number;
+  id: string;
   title: string;
   description: string;
   mediaType: "image" | "video";
@@ -20,14 +21,27 @@ export default function BlogPage() {
 
   useEffect(() => {
     const fetchBlogs = async () => {
-      const { data, error } = await supabase.from("blogs").select("*").order("id", { ascending: false });
+      try {
+        const q = query(collection(db, "blogs"), orderBy("id", "desc"));
+        const snapshot = await getDocs(q);
 
-      if (error) {
-        console.error("Error fetching blogs:", error.message);
-      } else {
-        setPosts(data || []);
+        const data = snapshot.docs.map((doc) => {
+          const docData = doc.data() as any;
+          return {
+            id: doc.id,
+            title: docData.title || "Untitled",
+            description: docData.description || "",
+            mediaType: docData.mediaType || "image",
+            mediaUrl: docData.mediaUrl || "/default-image.jpg",
+          } as BlogPost;
+        });
+
+        setPosts(data);
+      } catch (err) {
+        console.error("Error fetching blogs:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchBlogs();
@@ -47,7 +61,7 @@ export default function BlogPage() {
         <h1 className="text-2xl lg:text-4xl font-extrabold text-kilifigreen mb-3">
           Blogs & Updates
         </h1>
-        </div>
+      </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
         {posts.map((post) => (

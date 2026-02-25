@@ -9,6 +9,7 @@ import CTASection from "../components/cta";
 import Stats from "../components/stats";
 
 
+
 const page = () => {
   return (
     <div className="mt-20 p-4 w-full min-h-screen ">
@@ -18,9 +19,8 @@ const page = () => {
         <Stats/>
         <WhyUs />
        <Explore/>
-
-        <Reviews />
-        <CTASection/>
+       <Reviews/>
+       <CTASection/>
       </div>
     </div>
   );

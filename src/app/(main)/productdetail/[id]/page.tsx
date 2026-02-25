@@ -1,6 +1,7 @@
 "use client";
 
-import { supabase } from "./../../../supabaseClient";
+import { collection,doc, getDoc } from "firebase/firestore";
+import { db } from "../../../firebase/client";
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -27,59 +28,71 @@ export default function Page() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { id } = useParams<{ id: string }>();
 
-  useEffect(() => {
-    if (!id) {
-      setError("Product ID is missing.");
-      setLoading(false);
-      return;
-    }
+ useEffect(() => {
+  if (!id) {
+    setError("Product ID is missing.");
+    setLoading(false);
+    return;
+  }
 
-    const fetchProduct = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("plots")
-          .select(
-            "id, name, images, description, features, category_id, unitsavailable, price, category(name),available"
-          )
-          .eq("id", id)
-          .single();
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
 
-        if (error || !data) {
-          setError("Product not found.");
-          return;
-        }
+      // 🔹 Fetch the product document from Firestore
+      const docRef = doc(db, "plots", id);
+      const docSnap = await getDoc(docRef);
 
-        // Ensure features is always an array (convert from string if necessary)
-        const parsedFeatures =
-          typeof data.features === "string"
-            ? JSON.parse(data.features)
-            : data.features;
-
-        const transformedProduct: Product = {
-          ...data,
-          images: Array.isArray(data.images)
-            ? data.images
-            : ["/default-image.jpg"],
-          features: Array.isArray(parsedFeatures)
-            ? parsedFeatures
-            : ["No features listed"],
-          category:
-            data.category && !Array.isArray(data.category)
-              ? data.category
-              : null,
-        };
-
-        setProduct(transformedProduct);
-      } catch (err) {
-        setError("Failed to fetch product.");
-        console.error(err);
-      } finally {
-        setLoading(false);
+      if (!docSnap.exists()) {
+        setError("Product not found.");
+        return;
       }
-    };
 
-    fetchProduct();
-  }, [id]);
+      const data = docSnap.data() as any;
+
+      // 🔹 Parse features if it's a string
+      const parsedFeatures =
+        typeof data.features === "string"
+          ? JSON.parse(data.features)
+          : data.features;
+
+      // 🔹 Fetch category document using category_id from product
+      let categoryObj: { name: string } | null = null;
+      if (data.category_id) {
+        const catRef = doc(db, "category", data.category_id);
+        const catSnap = await getDoc(catRef);
+        if (catSnap.exists()) {
+          const catData = catSnap.data() as any;
+          categoryObj = { name: catData.name || "Unknown Category" };
+        }
+      }
+
+      const transformedProduct: Product = {
+        id: docSnap.id,
+        name: data.name,
+        images: Array.isArray(data.images) ? data.images : ["/default-image.jpg"],
+        description: data.description || "",
+        features: Array.isArray(parsedFeatures)
+          ? parsedFeatures
+          : ["No features listed"],
+        category_id: data.category_id || "",
+        category: categoryObj,
+        price: data.price,
+        unitsavailable: data.unitsavailable || "",
+        available: data.available,
+      };
+
+      setProduct(transformedProduct);
+    } catch (err) {
+      setError("Failed to fetch product.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchProduct();
+}, [id]);
 
   if (loading) {
     return (

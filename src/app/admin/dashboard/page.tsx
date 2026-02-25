@@ -1,81 +1,89 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { auth, db } from "../../firebase/client";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../supabaseClient";
 import Link from "next/link";
-import { User } from "@supabase/supabase-js";
 
-const Dashboard: React.FC = () => {
+export default function AdminDashboard() {
+  const [username, setUsername] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
+    const fetchUserAndStats = async () => {
+      const currentUser = auth.currentUser;
 
-      if (error || !data?.user) {
-        router.push("/auth/login");
+      if (!currentUser) {
+        router.push("/login");
         return;
       }
 
-      setUser(data.user);
-      setIsLoading(false);
+      const userDocRef = doc(db, "users", currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if (data.role !== "admin") {
+          router.push("/unauthorized");
+          return;
+        }
+        setUsername(data.username || "Admin");
+      } else {
+        router.push("/unauthorized");
+      }
+
+      const usersSnap = await getDocs(collection(db, "users"));
+
+      setLoading(false);
     };
 
-    fetchUser();
+    fetchUserAndStats();
   }, [router]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/auth/login");
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen w-full">
-        <p>Loading...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-kilifigreen"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen mt-4 p-4 ">
-      {/* Header */}
-      <div className="p-4  flex justify-between w-full">
-        <h1 className="text-3xl text-kilifigreen text-bold">Dashboard</h1>
-        <button onClick={handleLogout} className="bg-red-500 px-4 py-2 rounded">
-          Logout
-        </button>
-      </div>
+    <div className="min-h-screen p-10 ">
+      <h1 className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-kilifigreen mb-6">
+        Welcome back, {username} 👋
+      </h1>
 
       {/* Content */}
       <div className="p-6 w-full ">
-        <h2 className="text-2xl mb-6 text-kilifigreen">Welcome, {user?.email || "Admin"}!</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full text-dark text-center" >
-          <Link href="/admin/products" >
+         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full text-dark text-center">
+          <Link href="/admin/products">
             <div className="bg-beige/90 p-6 shadow-xl rounded">
-              <h3 className="font-bold text-kilifigreen text-lg mb-4">Manage Products</h3>
+              <h3 className="font-bold text-kilifigreen text-lg mb-4">
+                Manage Products
+              </h3>
             </div>
           </Link>
 
           <Link href="/admin/blogs">
             <div className="bg-beige/90 p-6 shadow-xl rounded">
-              <h3 className="font-bold text-lg text-kilifigreen mb-4">Manage Blogs</h3>
+              <h3 className="font-bold text-lg text-kilifigreen mb-4">
+                Manage Blogs
+              </h3>
             </div>
           </Link>
           <Link href="/admin/news">
             <div className="bg-beige/90 p-6 shadow-xl rounded">
-              <h3 className="font-bold text-lg text-kilifigreen mb-4">Manage News</h3>
+              <h3 className="font-bold text-lg text-kilifigreen mb-4">
+                Manage News
+              </h3>
             </div>
           </Link>
-                  
         </div>
       </div>
     </div>
   );
-};
-
-export default Dashboard;
+}

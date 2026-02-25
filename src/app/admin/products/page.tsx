@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { supabase } from "../../supabaseClient";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase/client";
 import Link from "next/link";
 
 interface Category {
@@ -31,47 +32,60 @@ const ProductList: React.FC = () => {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const { data, error } = await supabase
-        .from("category")
-        .select("id, name");
-      if (error) {
+      try {
+        const snapshot = await getDocs(collection(db, "category"));
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Category[];
+        setCategories(data);
+      } catch (err) {
+        console.error(err);
         setError("Failed to fetch categories.");
-        console.error(error.message);
-      } else {
-        setCategories(data || []);
       }
     };
+
     fetchCategories();
   }, []);
 
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
-      setLoading(true);
-      setError(null);
-      let query = supabase
-        .from("plots")
-        .select(
-          "id, name, description, price, location, unitsavailable, images, category_id, features, available"
-        );
-      if (selectedCategory) {
-        query = query.eq("category_id", selectedCategory);
+      try {
+        setLoading(true);
+        const snapshot = await getDocs(collection(db, "plots"));
+        const data = snapshot.docs.map((doc) => {
+          const docData = doc.data() as any;
+
+          // Find the category object from categories array
+          const categoryObj =
+            categories.find((c) => c.id === docData.category_id) || null;
+
+          return {
+            id: doc.id,
+            name: docData.name,
+            images: docData.images,
+            description: docData.description,
+            location: docData.location,
+            price: docData.price,
+            available: docData.available,
+            category: categoryObj,
+            unitsavailable: docData.unitsavailable,
+            category_id: docData.category_id,
+          } as Product;
+        });
+
+        setProducts(data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load products.");
+      } finally {
+        setLoading(false);
       }
-      const { data, error } = await query;
-      if (error) {
-        setError("Failed to fetch products. Please try again.");
-        console.error(error.message);
-      } else {
-        setProducts(
-          data.map((product) => ({
-            ...product,
-            images: product.images || [],
-          })) || []
-        );
-      }
-      setLoading(false);
     };
-    fetchProducts();
-  }, [selectedCategory]);
+
+    if (categories.length > 0) fetchProducts(); // wait until categories are loaded
+  }, [categories]);
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
@@ -79,31 +93,40 @@ const ProductList: React.FC = () => {
 
   const handleSave = async () => {
     if (!editingProduct) return;
-    const { error } = await supabase
-      .from("plots") 
-      .update({
-        name: editingProduct.name,
-        description: editingProduct.description,
-        price: editingProduct.price,
-        location: editingProduct.location,
-        unitsavailable: editingProduct.unitsavailable,
-        images: editingProduct.images,
-        category_id: editingProduct.category_id,
-        feature: editingProduct.feature,
-        available: editingProduct.available,
-      })
-      .eq("id", editingProduct.id);
+    const handleSave = async () => {
+      if (!editingProduct) return;
 
-    if (error) {
-      alert("Failed to update product.");
-    } else {
-      alert("Product updated successfully!");
+      try {
+        const productRef = doc(db, "plots", editingProduct.id);
 
-      // Refresh product list after updating
-      const { data } = await supabase.from("plots").select("*");
-      setProducts(data || []);
-      setEditingProduct(null);
-    }
+        await updateDoc(productRef, {
+          name: editingProduct.name,
+          description: editingProduct.description,
+          price: editingProduct.price,
+          location: editingProduct.location,
+          unitsavailable: editingProduct.unitsavailable,
+          images: editingProduct.images,
+          category_id: editingProduct.category_id,
+          feature: editingProduct.feature || "",
+          available: editingProduct.available,
+        });
+
+        alert("Product updated successfully!");
+
+        // Refresh products
+        const snapshot = await getDocs(collection(db, "plots"));
+        const updatedProducts = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Product[];
+
+        setProducts(updatedProducts);
+        setEditingProduct(null);
+      } catch (error) {
+        console.error(error);
+        alert("Failed to update product.");
+      }
+    };
   };
 
   return (
@@ -111,10 +134,13 @@ const ProductList: React.FC = () => {
       <div className="w-full p-6 flex flex-col gap-4">
         <div className=" flex flex-row gap-20 justify-center ">
           <h1 className="text-3xl  lg:text-5xl font-bold text-center text-kilifigreen">
-          Products
-        </h1>
-        <Link href="/admin/add-product">
-        <h5 className="text-md lg:text-xl font-semibold border border-kilifigreen bg-beige/80 text-kilifigreen text-center rounded-full px-4 lg:px-6  py-3">+ New</h5></Link>
+            Products
+          </h1>
+          <Link href="/admin/add-product">
+            <h5 className="text-md lg:text-xl font-semibold border border-kilifigreen bg-beige/80 text-kilifigreen text-center rounded-full px-4 lg:px-6  py-3">
+              + New
+            </h5>
+          </Link>
         </div>
 
         {error && <p className="text-center text-red-500">{error}</p>}
@@ -164,7 +190,10 @@ const ProductList: React.FC = () => {
               </thead>
               <tbody>
                 {products.map((product) => (
-                  <tr key={product.id} className="border-b border-kilifigreen/30 text-black">
+                  <tr
+                    key={product.id}
+                    className="border-b border-kilifigreen/30 text-black"
+                  >
                     <td className="py-3 px-4">{product.name}</td>
                     <td className="py-3 px-4">{product.price}</td>
                     <td className="py-3 px-4">

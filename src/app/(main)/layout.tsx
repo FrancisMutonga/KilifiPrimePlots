@@ -19,12 +19,13 @@ export default function MainLayout({
 
 
            {/* Fixed WhatsApp CTA */}
-          (
+          
             <a
               href="https://wa.me/254708091755"
 
               target="_blank"
               rel="noopener noreferrer"
+               onClick={() => window.fbq?.("trackCustom", "WhatsAppClick")}
               className="fixed bottom-12 right-12  bg-beige/80  flex items-center gap-2 px-4 py-2 rounded-full shadow-lg hover:bg-green-600 transition-all"
             >
               <svg
@@ -40,7 +41,7 @@ export default function MainLayout({
              <span className="font-semibold text-kilifigreen hover:text-beige text-lg">Let&apos;s Chat</span>
 
             </a>
-          )
+          
         </div>
      
    
