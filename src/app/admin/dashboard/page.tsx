@@ -35,7 +35,7 @@ export default function AdminDashboard() {
         router.push("/unauthorized");
       }
 
-      const usersSnap = await getDocs(collection(db, "users"));
+    
 
       setLoading(false);
     };

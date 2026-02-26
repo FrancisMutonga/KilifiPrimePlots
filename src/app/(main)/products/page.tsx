@@ -58,7 +58,7 @@ const ProductsPage: React.FC = () => {
       setLoading(true);
       const snapshot = await getDocs(collection(db, "plots"));
       const data = snapshot.docs.map((doc) => {
-        const docData = doc.data() as any;
+        const docData = doc.data() as Product;
 
        
         const categoryObj = categories.find(
