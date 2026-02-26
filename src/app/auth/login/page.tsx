@@ -10,10 +10,12 @@ export default function SigninPage() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
-   const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push("/admin/dashboard");
@@ -23,19 +25,13 @@ export default function SigninPage() {
       } else {
         setError("An unknown error occurred.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center  p-4 " >
+    <div className="min-h-screen flex items-center justify-center  p-4 ">
       <div className="w-full max-w-md bg-beige/90 rounded-lg shadow-lg p-8">
         <h2 className="text-3xl lg:text-4xl font-bold text-center mb-6 text-kilifigreen">
           Please Login
@@ -56,7 +52,10 @@ export default function SigninPage() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-kilifigreen font-bold">
+            <label
+              htmlFor="password"
+              className="block text-kilifigreen font-bold"
+            >
               Password
             </label>
             <input
@@ -82,5 +81,3 @@ export default function SigninPage() {
     </div>
   );
 }
-
-

@@ -1,6 +1,6 @@
 "use client";
 
-import { collection,doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase/client";
 import { notFound, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -19,6 +19,9 @@ interface Product {
   unitsavailable: string;
   category?: { name: string } | null;
   available: boolean;
+}
+interface Category {
+  name?: string;
 }
 
 export default function Page() {
@@ -48,7 +51,7 @@ export default function Page() {
         return;
       }
 
-      const data = docSnap.data() as any;
+      const data = docSnap.data() as Product;
 
       // 🔹 Parse features if it's a string
       const parsedFeatures =
@@ -62,7 +65,7 @@ export default function Page() {
         const catRef = doc(db, "category", data.category_id);
         const catSnap = await getDoc(catRef);
         if (catSnap.exists()) {
-          const catData = catSnap.data() as any;
+          const catData = catSnap.data() as Category;
           categoryObj = { name: catData.name || "Unknown Category" };
         }
       }
@@ -94,10 +97,10 @@ export default function Page() {
   fetchProduct();
 }, [id]);
 
-  if (loading) {
+   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-xl text-gray-500">
-        Loading...
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-kilifigreen"></div>
       </div>
     );
   }

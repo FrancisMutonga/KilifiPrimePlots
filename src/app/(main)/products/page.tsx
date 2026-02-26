@@ -89,6 +89,14 @@ const ProductsPage: React.FC = () => {
   if (categories.length > 0) fetchProducts(); // wait until categories are loaded
 }, [categories]);
 
+ if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-kilifigreen"></div>
+      </div>
+    );
+  }
+
 const filteredProducts = selectedCategory
   ? products.filter((product) => product.category_id === selectedCategory)
   : products;

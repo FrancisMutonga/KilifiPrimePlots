@@ -55,7 +55,7 @@ const ProductList: React.FC = () => {
         setLoading(true);
         const snapshot = await getDocs(collection(db, "plots"));
         const data = snapshot.docs.map((doc) => {
-          const docData = doc.data() as any;
+          const docData = doc.data() as Omit<Product, "id">;
 
           // Find the category object from categories array
           const categoryObj =
@@ -93,8 +93,7 @@ const ProductList: React.FC = () => {
 
   const handleSave = async () => {
     if (!editingProduct) return;
-    const handleSave = async () => {
-      if (!editingProduct) return;
+    
 
       try {
         const productRef = doc(db, "plots", editingProduct.id);
@@ -126,7 +125,7 @@ const ProductList: React.FC = () => {
         console.error(error);
         alert("Failed to update product.");
       }
-    };
+   
   };
 
   return (

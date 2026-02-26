@@ -40,7 +40,7 @@ export default function BlogDetails() {
           return;
         }
 
-        const data = docSnap.data() as any;
+        const data = docSnap.data() as BlogPost;
 
         setPost({
           id: docSnap.id,
@@ -61,10 +61,10 @@ export default function BlogDetails() {
     fetchBlog();
   }, [blogId]);
 
-  if (loading) {
+   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen text-green-700 font-bold">
-        Loading post...
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-kilifigreen"></div>
       </div>
     );
   }

@@ -26,7 +26,7 @@ export default function BlogPage() {
         const snapshot = await getDocs(q);
 
         const data = snapshot.docs.map((doc) => {
-          const docData = doc.data() as any;
+          const docData = doc.data() as BlogPost;
           return {
             id: doc.id,
             title: docData.title || "Untitled",
@@ -47,10 +47,10 @@ export default function BlogPage() {
     fetchBlogs();
   }, []);
 
-  if (loading) {
+   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen text-green-700 font-bold">
-        Loading blog posts...
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-kilifigreen"></div>
       </div>
     );
   }
