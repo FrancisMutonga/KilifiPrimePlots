@@ -60,7 +60,7 @@ const ProductsPage: React.FC = () => {
       const data = snapshot.docs.map((doc) => {
         const docData = doc.data() as any;
 
-        // Find the category object from categories array
+       
         const categoryObj = categories.find(
           (c) => c.id === docData.category_id
         ) || null;

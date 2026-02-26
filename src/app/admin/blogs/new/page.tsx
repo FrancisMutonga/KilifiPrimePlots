@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { supabase } from "./../../../supabaseClient";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { db, storage } from "../../../firebase/client";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const NewBlogPage = () => {
   const router = useRouter();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [mediaType, setMediaType] = useState<"image" | "video">("image");
@@ -15,7 +18,7 @@ const NewBlogPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-   const convertPlainTextToHTML = (text: string) => {
+  const convertPlainTextToHTML = (text: string) => {
     const lines = text.split(/\r?\n/);
     let html = "";
     let inUL = false;
@@ -23,26 +26,21 @@ const NewBlogPage = () => {
 
     lines.forEach((line) => {
       const trimmed = line.trim();
+      if (!trimmed) return;
 
-      if (!trimmed) return; // skip empty lines
-
-      // Bullets (- text)
       if (/^-\s+/.test(trimmed)) {
         if (!inUL) {
           html += "<ul>";
           inUL = true;
         }
         html += `<li>${trimmed.replace(/^- /, "")}</li>`;
-      } 
-      // Numbered (1. text)
-      else if (/^\d+\.\s+/.test(trimmed)) {
+      } else if (/^\d+\.\s+/.test(trimmed)) {
         if (!inOL) {
           html += "<ol>";
           inOL = true;
         }
         html += `<li>${trimmed.replace(/^\d+\.\s+/, "")}</li>`;
-      } 
-      else {
+      } else {
         if (inUL) {
           html += "</ul>";
           inUL = false;
@@ -51,11 +49,12 @@ const NewBlogPage = () => {
           html += "</ol>";
           inOL = false;
         }
-        // Convert simple markers to HTML
+
         const lineHTML = trimmed
-          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")   
-          .replace(/\*(.*?)\*/g, "<em>$1</em>")              
-          .replace(/__(.*?)__/g, "<u>$1</u>");               
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*(.*?)\*/g, "<em>$1</em>")
+          .replace(/__(.*?)__/g, "<u>$1</u>");
+
         html += `<p>${lineHTML}</p>`;
       }
     });
@@ -78,35 +77,25 @@ const NewBlogPage = () => {
     }
 
     try {
-      // Upload file to Supabase Storage
+      // 🔥 Upload to Firebase Storage
       const fileName = `${Date.now()}_${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("blogs")
-        .upload(fileName, file);
+      const storageRef = ref(storage, `blogs/${fileName}`);
 
-      if (uploadError) throw uploadError;
+      await uploadBytes(storageRef, file);
+      const mediaUrl = await getDownloadURL(storageRef);
 
-      const { data: publicUrlData } = supabase.storage
-        .from("blogs")
-        .getPublicUrl(fileName);
-
-      const mediaUrl = publicUrlData.publicUrl;
-
-       // Convert description to HTML
       const descriptionHTML = convertPlainTextToHTML(description);
 
-      // Save blog info to database
-      const { error: insertError } = await supabase.from("blogs").insert([
-        {
-          title,
-         description: descriptionHTML,
-          mediaType,
-          mediaUrl,
-           blogLink: blogLink || null,
-        },
-      ]);
-
-      if (insertError) throw insertError;
+      // 🔥 Save to Firestore
+      await addDoc(collection(db, "blogs"), {
+        title,
+        description: descriptionHTML,
+        mediaType,
+        mediaUrl,
+        blogLink: blogLink || null,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
 
       router.push("/admin/blogs");
     } catch (err: unknown) {
@@ -115,11 +104,13 @@ const NewBlogPage = () => {
       } else {
         setError("Something went wrong.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <section className="min-h-screen py-12  px-6">
+    <section className="min-h-screen py-12 px-6">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -189,6 +180,7 @@ const NewBlogPage = () => {
                 className="w-full border rounded-lg text-gray-800 p-2"
               />
             </div>
+
             <div>
               <label className="block text-kilifigreen font-semibold mb-2">
                 External Blog Link (Optional)

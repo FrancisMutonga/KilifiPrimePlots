@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { supabase } from "./../../../supabaseClient";
+import { db, storage } from "../../../firebase/client";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Image from "next/image";
 
 export default function EditBlogPage() {
@@ -15,31 +17,36 @@ export default function EditBlogPage() {
   const [mediaType, setMediaType] = useState<"image" | "video">("image");
   const [uploading, setUploading] = useState(false);
   const [blogLink, setBlogLink] = useState("");
-
   const [loading, setLoading] = useState(true);
 
+  // 🔥 Fetch Blog from Firestore
   useEffect(() => {
     const fetchBlog = async () => {
-      const { data, error } = await supabase
-        .from("blogs")
-        .select("*")
-        .eq("id", id)
-        .single();
+      try {
+        const docRef = doc(db, "blogs", id);
+        const docSnap = await getDoc(docRef);
 
-      if (error) console.error(error);
-      else if (data) {
-        setTitle(data.title);
-        setDescription(data.description);
-        setMediaUrl(data.mediaUrl);
-        setMediaType(data.mediaType);
-        setBlogLink(data.blogLink || "");
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setTitle(data.title || "");
+          setDescription(data.description || "");
+          setMediaUrl(data.mediaUrl || "");
+          setMediaType(data.mediaType || "image");
+          setBlogLink(data.blogLink || "");
+        } else {
+          console.error("No such document!");
+        }
+      } catch (error) {
+        console.error("Error fetching blog:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    fetchBlog();
+    if (id) fetchBlog();
   }, [id]);
 
+  // 🔥 Upload to Firebase Storage
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -49,19 +56,15 @@ export default function EditBlogPage() {
       if (!file) return;
 
       const fileExt = file.name.split(".").pop();
-      const filePath = `${Date.now()}.${fileExt}`;
+      const fileName = `${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("blogs")
-        .upload(filePath, file);
+      const storageRef = ref(storage, `blogs/${fileName}`);
 
-      if (uploadError) throw uploadError;
+      await uploadBytes(storageRef, file);
 
-      const { data: publicUrlData } = supabase.storage
-        .from("blogs")
-        .getPublicUrl(filePath);
+      const downloadURL = await getDownloadURL(storageRef);
 
-      setMediaUrl(publicUrlData.publicUrl);
+      setMediaUrl(downloadURL);
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Failed to upload media");
@@ -70,22 +73,25 @@ export default function EditBlogPage() {
     }
   };
 
+  // 🔥 Update Firestore Document
   const handleUpdate = async () => {
-    const { error } = await supabase
-      .from("blogs")
-      .update({
+    try {
+      const docRef = doc(db, "blogs", id);
+
+      await updateDoc(docRef, {
         title,
         description,
         mediaUrl,
         mediaType,
         blogLink,
-      })
-      .eq("id", id);
+        updatedAt: new Date(),
+      });
 
-    if (error) alert("Error updating blog");
-    else {
       alert("Blog updated successfully!");
       router.push("/admin/blogs");
+    } catch (error) {
+      console.error("Error updating blog:", error);
+      alert("Error updating blog");
     }
   };
 
@@ -155,8 +161,8 @@ export default function EditBlogPage() {
                   src={mediaUrl}
                   alt="Uploaded media"
                   className="rounded-lg w-full h-60 object-cover"
-                  height={60}
-                  width={80}
+                  height={600}
+                  width={800}
                 />
               ) : (
                 <video

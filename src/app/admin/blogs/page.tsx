@@ -1,15 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "./../../supabaseClient";
+import { db } from "../../firebase/client";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  Timestamp,
+} from "firebase/firestore";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
 interface BlogPost {
   id: string;
   title: string;
-  created_at: string;
-  }
+  created_at: Date; // ✅ Use Date in UI layer
+}
 
 export default function AdminBlogs() {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
@@ -17,35 +24,64 @@ export default function AdminBlogs() {
 
   useEffect(() => {
     const fetchBlogs = async () => {
-      const { data, error } = await supabase
-        .from("blogs")
-        .select("*")
-        .order("created_at", { ascending: false });
+      try {
+        const q = query(
+          collection(db, "blogs"),
+          orderBy("created_at", "desc")
+        );
 
-      if (error) console.error(error);
-      else setBlogs(data || []);
+        const snapshot = await getDocs(q);
 
-      setLoading(false);
+        const data: BlogPost[] = snapshot.docs.map((doc) => {
+          const docData = doc.data();
+
+          let createdAt: Date;
+
+          // ✅ Handle all possible cases safely
+          if (docData.created_at instanceof Timestamp) {
+            createdAt = docData.created_at.toDate();
+          } else if (docData.created_at instanceof Date) {
+            createdAt = docData.created_at;
+          } else if (docData.created_at) {
+            createdAt = new Date(docData.created_at);
+          } else {
+            createdAt = new Date();
+          }
+
+          return {
+            id: doc.id,
+            title: docData.title || "Untitled",
+            created_at: createdAt,
+          };
+        });
+
+        setBlogs(data);
+      } catch (error) {
+        console.error("Error fetching blogs:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchBlogs();
   }, []);
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen text-gray-500">
-        Loading blogs...
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-kilifigreen"></div>
       </div>
     );
+  }
 
   return (
     <section className="p-10 max-w-6xl min-h-screen">
-      <div className=" flex flex-row gap-20 justify-center">
+      <div className="flex flex-row gap-20 justify-center">
         <h1 className="text-3xl lg:text-5xl font-bold text-kilifigreen mb-6">
           All Blogs
         </h1>
         <Link href="/admin/blogs/new">
-          <h5 className="text-md lg:text-xl font-semibold border border-kilifigreen bg-beige/80 text-kilifigreen text-center rounded-full px-4 lg:px-6  py-3">
+          <h5 className="text-md lg:text-xl font-semibold border border-kilifigreen bg-beige/80 text-kilifigreen text-center rounded-full px-4 lg:px-6 py-3">
             + New
           </h5>
         </Link>
@@ -65,9 +101,12 @@ export default function AdminBlogs() {
               <h2 className="text-xl lg:text-3xl font-semibold text-green-700 mb-2">
                 {post.title}
               </h2>
+
+              {/* ✅ No nested <p> tags anymore */}
               <p className="text-sm text-gray-600 mb-3">
-                {new Date(post.created_at).toLocaleDateString()}
+                {post.created_at.toLocaleDateString()}
               </p>
+
               <Link
                 href={`/admin/blogs/${post.id}`}
                 className="text-green-700 font-semibold hover:underline"
